@@ -1,5 +1,5 @@
 import irc
-from bot import IRCBot
+from ircbot import IRCBot
 
 def main():
     client = IRCBot(('irc.twitch.tv', 6667))
