@@ -1,8 +1,12 @@
+import os.path
+
 class Plugin:
     _bot = None
+    _path = None
 
-    def __init__(self, bot):
+    def __init__(self, bot, path):
         self._bot = bot
+        self._path = path
         self.init()
 
     def init(self):
@@ -22,3 +26,9 @@ class Plugin:
 
     def register_command(self, name, handler):
         self.get_bot().register_command(name, handler)
+
+    def get_path(self, path=None):
+        if path is None:
+            return self._path
+        else:
+            return os.path.join(self._path, path)
