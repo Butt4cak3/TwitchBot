@@ -16,18 +16,21 @@ class IRCConnection:
     def recv(self):
         # Find out the length of the next message by peeking
         try:
-            buf = self.sock.recv(512, socket.MSG_PEEK)
+            buf = self.sock.recv(511, socket.MSG_PEEK)
         except:
             return False
 
         if not buf:
             return False
-        text = buf.decode('ascii')
+        text = buf.decode(errors='ignore')
         msg_len = text.find('\r\n') + 2
 
         # Now get the actual next message
         buf = self.sock.recv(msg_len)
-        text = buf.decode('ascii')
+        text = buf.decode(errors='ignore')
+        while text[-2:] != '\r\n':
+            buf = self.sock.recv(1)
+            text += buf.decode(errors='ignore')
         text = text[:-2]
 
         if len(text) > 0:
