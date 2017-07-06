@@ -4,6 +4,7 @@ import irc
 import plugins
 from . import Plugin
 import traceback
+import os
 
 class IRCBot(irc.IRCClient):
     DEFAULT_CHANNEL = ''
@@ -15,6 +16,7 @@ class IRCBot(irc.IRCClient):
     def __init__(self, address=None):
         super().__init__(address)
         self.load_plugins()
+        self.load_config()
 
     def load_plugins(self):
         prefix = plugins.__name__ + '.'
@@ -46,6 +48,15 @@ class IRCBot(irc.IRCClient):
 
         return True
 
+    def load_config(self):
+        if not os.path.isfile('ops.txt'):
+            with open('ops.txt', 'a'):
+                pass
+
+        with open('ops.txt', 'r') as f:
+            for line in f:
+                nick = line.strip()
+                self.ops.append(nick)
 
     def on_message(self, msg):
         for plugin in self.plugins:
