@@ -33,6 +33,9 @@ class IRCClient:
         self.send('NICK {}'.format(nick))
         self.send('USER {} {} {} :{}'.format(user, user, user, realname))
 
+    def privmsg(self, channel, message):
+        self.conn.send('PRIVMSG {} :{}'.format(channel, message))
+
     def quit(self, message=''):
         self.conn.send('QUIT :{}'.format(message))
 
