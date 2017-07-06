@@ -11,9 +11,12 @@ class IRCClient:
 
     def main(self):
         while True:
-            msg = self.recv()
-            if msg[0:4] == 'PING':
+            text = self.recv()
+            msg = self.parse_message(text)
+
+            if msg['command'] == 'PING':
                 self.handle_ping(msg)
+
             self.on_message(msg)
 
     def connect(self, address):
@@ -33,6 +36,9 @@ class IRCClient:
         self.send('NICK {}'.format(nick))
         self.send('USER {} {} {} :{}'.format(user, user, user, realname))
 
+    def handle_ping(self, msg):
+        self.send('PONG :{}'.format(' '.join(params)))
+
     def privmsg(self, channel, message):
         self.conn.send('PRIVMSG {} :{}'.format(channel, message))
 
@@ -44,6 +50,43 @@ class IRCClient:
 
     def recv(self):
         return self.conn.recv()
+
+    def parse_message(self, text):
+        parts = text.split(' ')
+
+        if parts[0][0] == ':':
+            sender = parts.pop(0)
+            bangpos = sender.find('!')
+            if bangpos != -1:
+                sender = sender[0:bangpos]
+        else:
+            sender = None
+
+        action = parts.pop(0)
+
+        params = []
+        while len(parts) > 0:
+            part = parts.pop(0)
+            if len(part) > 0 and part[0] == ':':
+                param = part[1:]
+                while len(parts) > 0:
+                    param += ' ' + parts.pop(0)
+                params.append(param)
+            else:
+                params.append(part)
+
+        return {
+            'sender': sender,
+            'command': action,
+            'params': params
+        }
+
+    def parse_privmsg(self, msg):
+        return {
+            'sender': msg['sender'],
+            'channel': msg['params'][0],
+            'text': msg['params'][1]
+        }
 
     def on_message(self, message):
         pass
