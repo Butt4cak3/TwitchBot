@@ -12,6 +12,10 @@ class IRCClient:
     def main(self):
         while True:
             text = self.recv()
+
+            if text == False:
+                return
+
             msg = self.parse_message(text)
 
             if msg['command'] == 'PING':
@@ -40,10 +44,11 @@ class IRCClient:
         self.send('PONG :{}'.format(' '.join(params)))
 
     def privmsg(self, channel, message):
-        self.conn.send('PRIVMSG {} :{}'.format(channel, message))
+        self.send('PRIVMSG {} :{}'.format(channel, message))
 
     def quit(self, message=''):
-        self.conn.send('QUIT :{}'.format(message))
+        self.send('QUIT :{}'.format(message))
+        self.disconnect()
 
     def send(self, message):
         self.conn.send(message)

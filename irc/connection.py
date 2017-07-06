@@ -15,7 +15,13 @@ class IRCConnection:
 
     def recv(self):
         # Find out the length of the next message by peeking
-        buf = self.sock.recv(512, socket.MSG_PEEK)
+        try:
+            buf = self.sock.recv(512, socket.MSG_PEEK)
+        except:
+            return False
+
+        if not buf:
+            return False
         text = buf.decode('ascii')
         msg_len = text.find('\r\n') + 2
 
