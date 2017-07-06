@@ -3,6 +3,7 @@ import inspect
 import irc
 import plugins
 from . import Plugin
+import traceback
 
 class IRCBot(irc.IRCClient):
     DEFAULT_CHANNEL = ''
@@ -37,6 +38,7 @@ class IRCBot(irc.IRCClient):
         try:
             instance = constructor(self, pluginpath)
         except:
+            print(traceback.format_exc())
             return False
 
         self.plugins.append(instance)
