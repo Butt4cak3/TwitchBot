@@ -27,7 +27,7 @@ class IRCBot(irc.IRCClient):
 
         try:
             package = __import__(prefix + modname, fromlist='dummy')
-            pluginpath = package.__path__
+            pluginpath = package.__path__[0]
             constructor = getattr(package, modname)
         except:
             return False
