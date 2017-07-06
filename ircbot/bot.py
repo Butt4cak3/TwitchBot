@@ -10,6 +10,7 @@ class IRCBot(irc.IRCClient):
     plugins = []
     commands = {}
     command_prefix = ';'
+    ops = []
 
     def __init__(self, address=None):
         super().__init__(address)
@@ -100,6 +101,9 @@ class IRCBot(irc.IRCClient):
 
     def register_command(self, name, handler):
         self.commands[name] = handler
+
+    def isop(self, nick):
+        return nick in self.ops
 
     def send(self, message):
         print('--> {}'.format(message))
