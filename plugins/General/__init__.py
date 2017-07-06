@@ -5,4 +5,5 @@ class General(Plugin):
         self.register_command('quit', self.cmd_quit)
 
     def cmd_quit(self, params, channel, sender, command):
-        self.get_bot().quit()
+        if self.get_bot().isop(sender):
+            self.get_bot().quit()
