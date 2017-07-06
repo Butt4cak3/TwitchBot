@@ -61,6 +61,7 @@ class IRCClient:
 
         if parts[0][0] == ':':
             sender = parts.pop(0)
+            sender = sender[1:]
             bangpos = sender.find('!')
             if bangpos != -1:
                 sender = sender[0:bangpos]
