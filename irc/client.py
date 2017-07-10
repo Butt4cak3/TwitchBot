@@ -41,7 +41,7 @@ class IRCClient:
         self.send('USER {} {} {} :{}'.format(user, user, user, realname))
 
     def handle_ping(self, msg):
-        self.send('PONG :{}'.format(' '.join(params)))
+        self.send('PONG :{}'.format(' '.join(msg['params'])))
 
     def privmsg(self, channel, message):
         self.send('PRIVMSG {} :{}'.format(channel, message))
