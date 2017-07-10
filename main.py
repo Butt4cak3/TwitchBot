@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import irc
 from ircbot import IRCBot
 import json
