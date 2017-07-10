@@ -46,7 +46,11 @@ def main():
     client.register(config['username'], password=config['oauth'])
     client.ops = config['ops']
     client.channels = config['channels']
-    client.main()
+
+    try:
+        client.main()
+    except KeyboardInterrupt:
+        client.quit()
 
 if __name__ == '__main__':
     main()
