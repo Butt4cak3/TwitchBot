@@ -7,16 +7,15 @@ import traceback
 import os
 
 class IRCBot(irc.IRCClient):
-    DEFAULT_CHANNEL = ''
     plugins = []
     commands = {}
     command_prefix = ';'
     ops = []
+    channels = []
 
     def __init__(self, address=None):
         super().__init__(address)
         self.load_plugins()
-        self.load_config()
 
     def load_plugins(self):
         prefix = plugins.__name__ + '.'
@@ -48,16 +47,6 @@ class IRCBot(irc.IRCClient):
 
         return True
 
-    def load_config(self):
-        if not os.path.isfile('ops.txt'):
-            with open('ops.txt', 'a'):
-                pass
-
-        with open('ops.txt', 'r') as f:
-            for line in f:
-                nick = line.strip()
-                self.ops.append(nick)
-
     def on_message(self, msg):
         for plugin in self.plugins:
             plugin.on_message(msg)
@@ -71,7 +60,8 @@ class IRCBot(irc.IRCClient):
             for plugin in self.plugins:
                 plugin.on_privmsg(privmsg)
         elif msg['command'] == '376':
-            self.send('JOIN {}'.format(self.DEFAULT_CHANNEL))
+            for channel in self.channels:
+                self.send('JOIN {}'.format(channel))
 
     def handle_command(self, privmsg):
         cmd = self.parse_command(privmsg)
@@ -115,6 +105,9 @@ class IRCBot(irc.IRCClient):
 
     def isop(self, nick):
         return nick in self.ops
+
+    def register(self, nick, password):
+        super().register(nick, nick, nick, password)
 
     def send(self, message):
         print('--> {}'.format(message))
