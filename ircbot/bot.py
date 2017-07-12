@@ -84,13 +84,16 @@ class IRCBot(irc.IRCClient):
 
             if part[0] == '"':
                 param = part[1:]
-                while len(parts) > 0:
-                    p = parts.pop(0)
-                    if len(p) > 0 and p[-1] == '"':
-                        param += ' ' + p[0:-1]
-                        break
-                    else:
-                        param += ' ' + p
+                if param[-1] == '"':
+                    param = param[0:-1]
+                else:
+                    while len(parts) > 0:
+                        p = parts.pop(0)
+                        if len(p) > 0 and p[-1] == '"':
+                            param += ' ' + p[0:-1]
+                            break
+                        else:
+                            param += ' ' + p
                 params.append(param)
             else:
                 params.append(part)
