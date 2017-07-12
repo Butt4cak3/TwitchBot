@@ -70,7 +70,12 @@ class IRCBot(irc.IRCClient):
 
     def execute_command(self, cmd):
         if cmd['command'] in self.commands:
-            self.commands[cmd['command']]['handler'](cmd['params'], cmd['channel'], cmd['sender'], cmd['command'])
+            handler = self.commands[cmd['command']]['handler']
+            try:
+                handler(cmd['params'], cmd['channel'], cmd['sender'], cmd['command'])
+            except:
+                self.privmsg(cmd['channel'], 'I tried, but something happened during the execution of that command.')
+                print(traceback.format_exc())
 
     def parse_command(self, privmsg):
         parts = privmsg['text'].split(' ')
