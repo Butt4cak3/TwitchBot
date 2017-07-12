@@ -24,8 +24,8 @@ class Plugin:
     def get_bot(self):
         return self._bot
 
-    def register_command(self, name, handler):
-        self.get_bot().register_command(name, handler)
+    def register_command(self, name, handler, oponly=True):
+        self.get_bot().register_command(name, handler, oponly)
 
     def unregister_command(self, name):
         self.get_bot().unregister_command(name)

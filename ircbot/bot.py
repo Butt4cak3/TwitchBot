@@ -65,11 +65,14 @@ class IRCBot(irc.IRCClient):
 
     def handle_command(self, privmsg):
         cmd = self.parse_command(privmsg)
-        self.execute_command(cmd)
+        print(cmd['command'])
+        print(self.commands[cmd['command']])
+        if (not self.commands[cmd['command']]['oponly']) or (self.isop(cmd['sender'])):
+            self.execute_command(cmd)
 
     def execute_command(self, cmd):
         if cmd['command'] in self.commands:
-            self.commands[cmd['command']](cmd['params'], cmd['channel'], cmd['sender'], cmd['command'])
+            self.commands[cmd['command']]['handler'](cmd['params'], cmd['channel'], cmd['sender'], cmd['command'])
 
     def parse_command(self, privmsg):
         parts = privmsg['text'].split(' ')
@@ -105,8 +108,11 @@ class IRCBot(irc.IRCClient):
             'params': params
         }
 
-    def register_command(self, name, handler):
-        self.commands[name] = handler
+    def register_command(self, name, handler, oponly=True):
+        self.commands[name] = {
+            'oponly': oponly,
+            'handler': handler
+        }
 
     def unregister_command(self, name):
         self.commands.pop(name)
