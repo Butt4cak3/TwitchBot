@@ -7,11 +7,11 @@ class General(Plugin):
     alias = {}
 
     def init(self):
-        self.register_command('help', self.cmd_help)
-        self.register_command('commands', self.cmd_help)
-        self.register_command('say', self.cmd_say)
-        self.register_command('quit', self.cmd_quit)
-        self.register_command('alias', self.cmd_alias)
+        self.register_command('help', self.cmd_help, False)
+        self.register_command('commands', self.cmd_help, False)
+        self.register_command('say', self.cmd_say, True)
+        self.register_command('quit', self.cmd_quit, True)
+        self.register_command('alias', self.cmd_alias, True)
 
         self.DB_FILE = self.get_path(self.DB_FILE)
 
@@ -32,7 +32,7 @@ class General(Plugin):
             self.alias = json.load(f)
 
         for alias in self.alias:
-            self.register_command(alias, self.cmd_custom)
+            self.register_command(alias, self.cmd_custom, False)
 
     def cmd_help(self, params, channel, sender, command):
         bot = self.get_bot()
@@ -53,8 +53,7 @@ class General(Plugin):
         self.get_bot().privmsg(target_channel, message)
 
     def cmd_quit(self, params, channel, sender, command):
-        if self.get_bot().isop(sender):
-            self.get_bot().quit()
+        self.get_bot().quit()
 
     def cmd_alias(self, params, channel, sender, command):
         cmd_name = params[0]
@@ -65,7 +64,7 @@ class General(Plugin):
                 return
 
             self.alias[cmd_name] = cmd_params
-            self.register_command(cmd_name, self.cmd_custom)
+            self.register_command(cmd_name, self.cmd_custom, False)
         else:
             if cmd_name not in self.alias:
                 self.get_bot().privmsg(channel, 'There is no alias "{}".'.format(cmd_name))
