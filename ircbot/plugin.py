@@ -27,6 +27,9 @@ class Plugin:
     def register_command(self, name, handler):
         self.get_bot().register_command(name, handler)
 
+    def unregister_command(self, name):
+        self.get_bot().unregister_command(name)
+
     def get_path(self, path=None):
         if path is None:
             return self._path

@@ -105,6 +105,12 @@ class IRCBot(irc.IRCClient):
     def register_command(self, name, handler):
         self.commands[name] = handler
 
+    def unregister_command(self, name):
+        self.commands.pop(name)
+
+    def command_exists(self, name):
+        return name in self.commands
+
     def isop(self, nick):
         return nick in self.ops
 
