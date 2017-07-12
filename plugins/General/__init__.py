@@ -7,6 +7,8 @@ class General(Plugin):
     alias = {}
 
     def init(self):
+        self.register_command('help', self.cmd_help)
+        self.register_command('commands', self.cmd_help)
         self.register_command('say', self.cmd_say)
         self.register_command('quit', self.cmd_quit)
         self.register_command('alias', self.cmd_alias)
@@ -31,6 +33,14 @@ class General(Plugin):
 
         for alias in self.alias:
             self.register_command(alias, self.cmd_custom)
+
+    def cmd_help(self, params, channel, sender, command):
+        bot = self.get_bot()
+        cmds = []
+        for cmd in bot.commands:
+            cmds.append(bot.command_prefix + cmd)
+
+        bot.privmsg(channel, 'Available commands: {}'.format(' '.join(cmds)))
 
     def cmd_say(self, params, channel, sender, command):
         if params[0][0] == '#':
