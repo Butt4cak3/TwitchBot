@@ -65,7 +65,9 @@ class IRCBot(irc.IRCClient):
 
     def handle_command(self, privmsg):
         cmd = self.parse_command(privmsg)
+        self.execute_command(cmd)
 
+    def execute_command(self, cmd):
         if cmd['command'] in self.commands:
             self.commands[cmd['command']](cmd['params'], cmd['channel'], cmd['sender'], cmd['command'])
 
