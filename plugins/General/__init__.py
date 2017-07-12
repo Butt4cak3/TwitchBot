@@ -23,8 +23,14 @@ class General(Plugin):
             json.dump(self.alias, f)
 
     def load_aliases(self):
+        for alias in self.alias:
+            self.unregister_command(alias)
+
         with open(self.DB_FILE, 'r') as f:
             self.alias = json.load(f)
+
+        for alias in self.alias:
+            self.register_command(alias, self.cmd_custom)
 
     def cmd_say(self, params, channel, sender, command):
         if params[0][0] == '#':
