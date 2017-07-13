@@ -65,6 +65,10 @@ class IRCBot(irc.IRCClient):
 
     def handle_command(self, privmsg):
         cmd = self.parse_command(privmsg)
+
+        if not cmd['command'] in self.commands:
+            return
+
         if (not self.commands[cmd['command']]['oponly']) or (self.isop(cmd['sender'])):
             self.execute_command(cmd)
 
