@@ -11,6 +11,7 @@ class IRCBot(irc.IRCClient):
     commands = {}
     command_prefix = ';'
     ops = []
+    bots = []
     channels = []
 
     def __init__(self, address=None):
@@ -69,7 +70,7 @@ class IRCBot(irc.IRCClient):
         if not cmd['command'] in self.commands:
             return
 
-        if (not self.commands[cmd['command']]['oponly']) or (self.isop(cmd['sender'])):
+        if (not self.isbot(cmd['sender'])) and ((not self.commands[cmd['command']]['oponly']) or (self.isop(cmd['sender']))):
             self.execute_command(cmd)
 
     def execute_command(self, cmd):
@@ -129,6 +130,9 @@ class IRCBot(irc.IRCClient):
 
     def isop(self, nick):
         return nick in self.ops
+
+    def isbot(self, nick):
+        return nick in self.bots
 
     def register(self, nick, password):
         super().register(nick, nick, nick, password)

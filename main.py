@@ -34,6 +34,9 @@ def main():
     if 'channels' not in config:
         config['channels'] = []
 
+    if 'bots' not in config:
+        config['bots'] = []
+
     with open(CONFIG_FILE, 'w') as f:
         json.dump(config, f, sort_keys=True, indent=4)
 
@@ -47,6 +50,7 @@ def main():
     client = IRCBot((config['address']['host'], config['address']['port']))
     client.register(config['username'], password=config['oauth'])
     client.ops = config['ops']
+    client.bots = config['bots']
     client.channels = config['channels']
 
     try:
