@@ -1,6 +1,7 @@
 from ircbot import Plugin
 import os
 import json
+import re
 
 class General(Plugin):
     DB_FILE = 'alias.json'
@@ -76,10 +77,27 @@ class General(Plugin):
         self.save_aliases()
 
     def cmd_custom(self, params, channel, sender, command):
+        def replace_placeholder(match):
+            name = match.group(1)
+            if name.isdigit():
+                name = int(name)
+                if len(params) < name:
+                    return '?'
+                else:
+                    return params[name - 1]
+            elif name == 'u':
+                return sender
+            elif name == 'c':
+                return channel[1:]
+
         cmd = {
             'sender': sender,
             'channel': channel,
             'command': self.alias[command][0],
             'params': self.alias[command][1:]
         }
+
+        for i in range(len(cmd['params'])):
+            cmd['params'][i] = re.sub('\$([cu]|[1-9][0-9]*)', replace_placeholder, cmd['params'][i])
+
         self.get_bot().execute_command(cmd)
