@@ -121,7 +121,7 @@ class General(Plugin):
             uptime = now - start
             seconds = uptime.seconds
             hours = seconds // 3600
-            seconds -= hours * 60
+            seconds -= hours * 3600
             minutes = seconds // 60
             seconds -= minutes * 60
             self.get_bot().privmsg(channel, 'Uptime: {} hours, {} minutes'.format(hours, minutes))
