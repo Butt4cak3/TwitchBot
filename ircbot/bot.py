@@ -13,6 +13,7 @@ class IRCBot(irc.IRCClient):
     ops = []
     bots = []
     channels = []
+    oauth = ''
 
     def __init__(self, address=None):
         super().__init__(address)
@@ -135,6 +136,7 @@ class IRCBot(irc.IRCClient):
         return nick in self.bots
 
     def register(self, nick, password):
+        self.oauth = password[6:]
         super().register(nick, nick, nick, password)
 
     def send(self, message):
