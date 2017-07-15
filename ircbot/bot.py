@@ -84,6 +84,11 @@ class IRCBot(irc.IRCClient):
          or ('broadcaster' in permissions and 'broadcaster' in sender['badges'])
          or ('subscriber' in permissions and sender['subscriber'] == '1')):
             self.execute_command(cmd)
+        else:
+            print(self.isop(sender))
+            print(sender)
+            print(self.ops)
+            print('no permission')
 
     def execute_command(self, cmd):
         if cmd['command'] in self.commands:
@@ -151,7 +156,7 @@ class IRCBot(irc.IRCClient):
         else:
             nick = user['nick']
 
-        return user in self.ops
+        return nick in self.ops
 
     def isbot(self, user):
         if isinstance(user, str):

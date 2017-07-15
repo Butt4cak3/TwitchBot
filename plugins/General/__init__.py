@@ -61,15 +61,18 @@ class General(Plugin):
         self.get_bot().quit()
 
     def cmd_alias(self, params, channel, sender, command):
-        if params[0][0] == '@':
-            permissions = params[0][1:].split(',')
-            cmd_name = params[1]
-            cmd_params = params[2:]
+        if len(params) > 1 and params[0][0] == '@':
+            permissions = params.pop(0)[1:].split('c')
         else:
-            permissions = 'everyone'
-            cmd_name = params[0]
-            cmd_params = params[1:]
+            permissions = None
 
+        if (permissions is None and len(params) < 1) or (permissions is not None and len(params) < 2):
+            self.get_bot().privmsg(channel, 'Not enough parameters')
+            return
+
+        cmd_name = params[0]
+        cmd_params = params[1:]
+            
         if len(params) > 1:
             if self.get_bot().command_exists(cmd_name):
                 self.get_bot().privmsg(channel, 'The command "{}" already exists.'.format(cmd_name))
