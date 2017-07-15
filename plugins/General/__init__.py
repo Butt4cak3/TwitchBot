@@ -2,6 +2,8 @@ from ircbot import Plugin
 import os
 import json
 import re
+import requests
+import datetime
 
 class General(Plugin):
     DB_FILE = 'alias.json'
@@ -13,6 +15,7 @@ class General(Plugin):
         self.register_command('say', self.cmd_say, True)
         self.register_command('quit', self.cmd_quit, True)
         self.register_command('alias', self.cmd_alias, True)
+        self.register_command('uptime', self.cmd_uptime, False)
 
         self.DB_FILE = self.get_path(self.DB_FILE)
 
@@ -101,3 +104,26 @@ class General(Plugin):
             cmd['params'][i] = re.sub('\$([cu]|[1-9][0-9]*)', replace_placeholder, cmd['params'][i])
 
         self.get_bot().execute_command(cmd)
+
+    def cmd_uptime(self, params, channel, sender, command):
+        streamer = channel[1:]
+        url = 'https://api.twitch.tv/kraken/streams/{}'.format(streamer)
+        headers = {
+            'Accept': 'application/vnd.twitchtv.v3+json',
+            'Authorization': 'OAuth {}'.format(self.get_bot().oauth)
+        }
+        request = requests.get(url, headers=headers)
+        response = request.json()
+
+        if response['stream'] is not None:
+            start = response['stream']['created_at']
+            now = datetime.datetime.now()
+            uptime = now - start
+            seconds = uptime.seconds
+            hours = seconds // 3600
+            seconds -= hours * 60
+            minutes = seconds // 60
+            seconds -= minutes * 60
+            self.get_bot().privmsg(channel, 'Uptime: {} hours, {} minutes'.format(hours, minutes))
+        else:
+            self.get_bot().privmsg(channel, '{} is currently offline.'.format(streamer))
