@@ -116,7 +116,7 @@ class General(Plugin):
         response = request.json()
 
         if response['stream'] is not None:
-            start = response['stream']['created_at']
+            start = datetime.datetime.strptime(response['stream']['created_at'], '%Y-%m-%dT%H:%M:%SZ')
             now = datetime.datetime.now()
             uptime = now - start
             seconds = uptime.seconds
