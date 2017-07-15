@@ -129,8 +129,11 @@ class IRCBot(irc.IRCClient):
         }
 
     def register_command(self, name, handler, permissions=('broadcaster', 'mod')):
+        if isinstance(permissions, str):
+            permissions = (permissions,)
+
         self.commands[name] = {
-            'permissions': permissions,
+            'permissions': tuple(permissions),
             'handler': handler
         }
 
