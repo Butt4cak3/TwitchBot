@@ -24,7 +24,7 @@ class Plugin:
     def get_bot(self):
         return self._bot
 
-    def register_command(self, name, handler, permissions=('broadcaster', 'mod')):
+    def register_command(self, name, handler, permissions=None):
         self.get_bot().register_command(name, handler, permissions)
 
     def unregister_command(self, name):
