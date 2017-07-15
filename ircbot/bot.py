@@ -68,11 +68,21 @@ class IRCBot(irc.IRCClient):
 
     def handle_command(self, privmsg):
         cmd = self.parse_command(privmsg)
+        sender = cmd['sender']
 
         if not cmd['command'] in self.commands:
             return
 
-        if (not self.isbot(cmd['sender'])) and ((not self.commands[cmd['command']]['oponly']) or (self.isop(cmd['sender']))):
+        permissions = self.commands[cmd['command']]['permissions']
+
+        if self.isbot(cmd['sender']):
+            return
+
+        if (('everyone' in permissions)
+         or (self.isop(sender))
+         or ('mod' in permissions and sender['mod'] == '1')
+         or ('broadcaster' in permissions and 'broadcaster' in sender['badges'])
+         or ('subscriber' in permissions and sender['subscriber'] == '1')):
             self.execute_command(cmd)
 
     def execute_command(self, cmd):
@@ -118,9 +128,9 @@ class IRCBot(irc.IRCClient):
             'params': params
         }
 
-    def register_command(self, name, handler, oponly=True):
+    def register_command(self, name, handler, permissions=('broadcaster', 'mod')):
         self.commands[name] = {
-            'oponly': oponly,
+            'permissions': permissions,
             'handler': handler
         }
 
@@ -130,15 +140,26 @@ class IRCBot(irc.IRCClient):
     def command_exists(self, name):
         return name in self.commands
 
-    def isop(self, nick):
-        return nick in self.ops
+    def isop(self, user):
+        if isinstance(user, str):
+            nick = user
+        else:
+            nick = user['nick']
 
-    def isbot(self, nick):
+        return user in self.ops
+
+    def isbot(self, user):
+        if isinstance(user, str):
+            nick = user
+        else:
+            nick = user['nick']
+
         return nick in self.bots
 
     def register(self, nick, password):
         self.oauth = password[6:]
         super().register(nick, nick, nick, password)
+        self.send('CAP REQ :twitch.tv/tags')
 
     def send(self, message):
         print('--> {}'.format(message))
@@ -149,3 +170,27 @@ class IRCBot(irc.IRCClient):
         if message is not None and message != False:
             print('<-- {}'.format(message))
         return message
+
+    def parse_message(self, message):
+        if message[0] == '@':
+            tagstring = message[1:message.find(' ')]
+            tags = self.parse_tags(tagstring)
+            message = message[message.find(' ') + 1:]
+        else:
+            tags = {}
+
+        result = super().parse_message(message)
+        tags['nick'] = result['sender']
+        result['sender'] = tags
+
+        return result
+
+    def parse_tags(self, tagstring):
+        tags = {}
+        parts = tagstring.split(';')
+
+        for part in parts:
+            key, value = part.split('=')
+            tags[key] = value
+
+        return tags

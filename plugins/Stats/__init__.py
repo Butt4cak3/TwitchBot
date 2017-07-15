@@ -35,7 +35,7 @@ class Stats(Plugin):
         c = self.db.cursor()
         values = (
             strftime('%Y-%m-%d %H:%M:%S', gmtime()),
-            msg['sender'],
+            msg['sender']['nick'],
             msg['channel'],
             msg['text']
         )

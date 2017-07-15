@@ -9,7 +9,7 @@ class Strawpoll(Plugin):
     RESPONSE_INTERVAL = 20
 
     def init(self):
-        self.register_command('strawpoll', self.cmd_strawpoll, True)
+        self.register_command('strawpoll', self.cmd_strawpoll)
 
     def on_privmsg(self, msg):
         now = int(time.time())

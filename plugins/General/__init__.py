@@ -10,12 +10,12 @@ class General(Plugin):
     alias = {}
 
     def init(self):
-        self.register_command('help', self.cmd_help, False)
-        self.register_command('commands', self.cmd_help, False)
-        self.register_command('say', self.cmd_say, True)
-        self.register_command('quit', self.cmd_quit, True)
-        self.register_command('alias', self.cmd_alias, True)
-        self.register_command('uptime', self.cmd_uptime, False)
+        self.register_command('help', self.cmd_help, permissions=('everyone',))
+        self.register_command('commands', self.cmd_help, permissions=('everyone',))
+        self.register_command('say', self.cmd_say)
+        self.register_command('quit', self.cmd_quit)
+        self.register_command('alias', self.cmd_alias)
+        self.register_command('uptime', self.cmd_uptime, permissions=('everyone',))
 
         self.DB_FILE = self.get_path(self.DB_FILE)
 
@@ -36,7 +36,7 @@ class General(Plugin):
             self.alias = json.load(f)
 
         for alias in self.alias:
-            self.register_command(alias, self.cmd_custom, False)
+            self.register_command(alias, self.cmd_custom, permissions=('everyone',))
 
     def cmd_help(self, params, channel, sender, command):
         bot = self.get_bot()
@@ -68,7 +68,7 @@ class General(Plugin):
                 return
 
             self.alias[cmd_name] = cmd_params
-            self.register_command(cmd_name, self.cmd_custom, False)
+            self.register_command(cmd_name, self.cmd_custom, permissions=('everyone',))
         else:
             if cmd_name not in self.alias:
                 self.get_bot().privmsg(channel, 'There is no alias "{}".'.format(cmd_name))
@@ -89,7 +89,7 @@ class General(Plugin):
                 else:
                     return params[name - 1]
             elif name == 'u':
-                return sender
+                return sender['nick']
             elif name == 'c':
                 return channel[1:]
 
