@@ -117,7 +117,7 @@ class General(Plugin):
 
         if response['stream'] is not None:
             start = datetime.datetime.strptime(response['stream']['created_at'], '%Y-%m-%dT%H:%M:%SZ')
-            now = datetime.datetime.now()
+            now = datetime.datetime.utcnow()
             uptime = now - start
             seconds = uptime.seconds
             hours = seconds // 3600
