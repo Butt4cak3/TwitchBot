@@ -34,6 +34,7 @@ class IRCBot(irc.IRCClient):
             pluginpath = package.__path__[0]
             constructor = getattr(package, modname)
         except:
+            print(traceback.format_exc())
             return False
 
         if not inspect.isclass(constructor) or not issubclass(constructor, Plugin):
