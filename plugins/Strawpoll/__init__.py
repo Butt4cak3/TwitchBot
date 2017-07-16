@@ -16,7 +16,9 @@ class Strawpoll(Plugin):
         if now < self.lastresponse + self.RESPONSE_INTERVAL:
             return
 
-        if self.get_bot().isop(msg['sender']) and msg['text'][0:24] == 'http://www.strawpoll.me/':
+        sender = msg['sender']
+
+        if (self.get_bot().isop(sender) or 'broadcaster' in sender['badges'] or sender['mod'] == '1') and msg['text'][0:24] == 'http://www.strawpoll.me/':
             self.show_info(msg['text'][24:], msg['channel'])
             self.lastresponse = now
 
