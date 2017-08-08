@@ -15,27 +15,14 @@ def main():
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
 
-    if 'address' not in config:
-        config['address'] = {}
-
-    if 'host' not in config['address']:
-        config['address']['host'] = 'irc.twitch.tv'
-    if 'port' not in config['address']:
-        config['address']['port'] = 6667
-
-    if 'username' not in config:
-        config['username'] = ''
-    if 'oauth' not in config:
-        config['oauth'] = ''
-
-    if 'ops' not in config:
-        config['ops'] = []
-
-    if 'channels' not in config:
-        config['channels'] = []
-
-    if 'bots' not in config:
-        config['bots'] = []
+    config.setdefault('address', {})
+    config['address'].setdefault('host', 'irc.twitch.tv')
+    config['address'].setdefault('port', 6667)
+    config.setdefault('username', '')
+    config.setdefault('oauth', '')
+    config.setdefault('ops', [])
+    config.setdefault('channels', [])
+    config.setdefault('bots', [])
 
     with open(CONFIG_FILE, 'w') as f:
         json.dump(config, f, sort_keys=True, indent=4)

@@ -1,9 +1,8 @@
 from . import IRCConnection
-import queue
+from collections import deque
 
 class IRCClient:
     conn = IRCConnection()
-    msg_buffer = queue.Queue()
 
     def __init__(self, address=None):
         if address is not None:
@@ -57,10 +56,10 @@ class IRCClient:
         return self.conn.recv()
 
     def parse_message(self, text):
-        parts = text.split(' ')
+        parts = deque(text.split(' '))
 
         if parts[0][0] == ':':
-            sender = parts.pop(0)
+            sender = parts.popleft()
             sender = sender[1:]
             bangpos = sender.find('!')
             if bangpos != -1:
@@ -72,11 +71,11 @@ class IRCClient:
 
         params = []
         while len(parts) > 0:
-            part = parts.pop(0)
+            part = parts.popleft()
             if len(part) > 0 and part[0] == ':':
                 param = part[1:]
                 while len(parts) > 0:
-                    param += ' ' + parts.pop(0)
+                    param += ' ' + parts.popleft()
                 params.append(param)
             else:
                 params.append(part)
