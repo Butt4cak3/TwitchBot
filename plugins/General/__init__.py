@@ -10,12 +10,12 @@ class General(Plugin):
     alias = {}
 
     def init(self):
-        self.register_command('help', self.cmd_help, False)
-        self.register_command('commands', self.cmd_help, False)
-        self.register_command('say', self.cmd_say, True)
-        self.register_command('quit', self.cmd_quit, True)
-        self.register_command('alias', self.cmd_alias, True)
-        self.register_command('uptime', self.cmd_uptime, False)
+        self.register_command('help', self.cmd_help, permissions=('everyone',))
+        self.register_command('commands', self.cmd_help, permissions=('everyone',))
+        self.register_command('say', self.cmd_say)
+        self.register_command('quit', self.cmd_quit)
+        self.register_command('alias', self.cmd_alias)
+        self.register_command('uptime', self.cmd_uptime, permissions=('everyone',))
 
         self.DB_FILE = self.get_path(self.DB_FILE)
 
@@ -35,8 +35,9 @@ class General(Plugin):
         with open(self.DB_FILE, 'r') as f:
             self.alias = json.load(f)
 
-        for alias in self.alias:
-            self.register_command(alias, self.cmd_custom, False)
+        for key in self.alias:
+            alias = self.alias[key]
+            self.register_command(key, self.cmd_custom, permissions=alias['permissions'])
 
     def cmd_help(self, params, channel, sender, command):
         bot = self.get_bot()
@@ -60,15 +61,25 @@ class General(Plugin):
         self.get_bot().quit()
 
     def cmd_alias(self, params, channel, sender, command):
+        if len(params) > 1 and params[0][0] == '@':
+            permissions = params.pop(0)[1:].split('c')
+        else:
+            permissions = None
+
+        if (permissions is None and len(params) < 1) or (permissions is not None and len(params) < 2):
+            self.get_bot().privmsg(channel, 'Not enough parameters')
+            return
+
         cmd_name = params[0]
         cmd_params = params[1:]
+            
         if len(params) > 1:
             if self.get_bot().command_exists(cmd_name):
                 self.get_bot().privmsg(channel, 'The command "{}" already exists.'.format(cmd_name))
                 return
 
-            self.alias[cmd_name] = cmd_params
-            self.register_command(cmd_name, self.cmd_custom, False)
+            self.alias[cmd_name] = { 'permissions': permissions, 'params': cmd_params }
+            self.register_command(cmd_name, self.cmd_custom, permissions=permissions)
         else:
             if cmd_name not in self.alias:
                 self.get_bot().privmsg(channel, 'There is no alias "{}".'.format(cmd_name))
@@ -89,15 +100,17 @@ class General(Plugin):
                 else:
                     return params[name - 1]
             elif name == 'u':
-                return sender
+                return sender['nick']
             elif name == 'c':
                 return channel[1:]
+
+        alias = self.alias[command]
 
         cmd = {
             'sender': sender,
             'channel': channel,
-            'command': self.alias[command][0],
-            'params': self.alias[command][1:]
+            'command': alias['params'][0],
+            'params': alias['params'][1:]
         }
 
         for i in range(len(cmd['params'])):
