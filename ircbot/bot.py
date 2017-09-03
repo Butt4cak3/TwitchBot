@@ -14,10 +14,16 @@ class IRCBot(irc.IRCClient):
     bots = []
     channels = []
     oauth = ''
+    config = None
 
-    def __init__(self, address=None):
+    def __init__(self, config):
+        address = (config['address']['host'], config['address']['port'])
         super().__init__(address)
+        self.config = config
         self.load_plugins()
+
+    def get_config(self):
+        return self.config
 
     def load_plugins(self):
         prefix = plugins.__name__ + '.'
@@ -40,8 +46,13 @@ class IRCBot(irc.IRCClient):
         if not inspect.isclass(constructor) or not issubclass(constructor, Plugin):
             return False
 
+        if not modname in self.config['plugins']:
+            self.config['plugins'][modname] = {}
+
+        pluginconfig = self.config['plugins'][modname]
+
         try:
-            instance = constructor(self, pluginpath)
+            instance = constructor(self, pluginpath, pluginconfig)
         except:
             print(traceback.format_exc())
             return False
@@ -78,17 +89,22 @@ class IRCBot(irc.IRCClient):
         if self.isbot(cmd['sender']):
             return
 
-        if (('everyone' in permissions)
-         or (self.isop(sender))
-         or ('mod' in permissions and sender['mod'] == '1')
-         or ('broadcaster' in permissions and 'broadcaster' in sender['badges'])
-         or ('subscriber' in permissions and sender['subscriber'] == '1')):
+        if self.has_permission(sender, permissions):
             self.execute_command(cmd)
+
+    def has_permission(self, user, permissions):
+        if self.isop(sender):
+            return True
+        elif 'everyone' in permissions:
+            return True
+        elif 'mod' in permissions and sender['mod'] == 1:
+            return True
+        elif 'broadcaster' in permissions and 'broadcaster' in sender['badges']:
+            return True
+        elif 'subscriber' in permissions and sender['subscriber'] == '1':
+            return True
         else:
-            print(self.isop(sender))
-            print(sender)
-            print(self.ops)
-            print('no permission')
+            return False
 
     def execute_command(self, cmd):
         if cmd['command'] in self.commands:

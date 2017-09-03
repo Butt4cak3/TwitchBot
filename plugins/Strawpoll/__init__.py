@@ -10,6 +10,7 @@ class Strawpoll(Plugin):
 
     def init(self):
         self.register_command('strawpoll', self.cmd_strawpoll)
+        self.get_config().setdefault('previewLinks', [ 'broadcaster', 'moderator' ])
 
     def on_privmsg(self, msg):
         now = int(time.time())
@@ -18,7 +19,7 @@ class Strawpoll(Plugin):
 
         sender = msg['sender']
 
-        if (self.get_bot().isop(sender) or 'broadcaster' in sender['badges'] or sender['mod'] == '1') and msg['text'][0:24] == 'http://www.strawpoll.me/':
+        if self.get_bot().has_permission(sender, self.get_config()['previewLinks']):
             self.show_info(msg['text'][24:], msg['channel'])
             self.lastresponse = now
 

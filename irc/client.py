@@ -67,7 +67,7 @@ class IRCClient:
         else:
             sender = None
 
-        action = parts.pop(0)
+        action = parts.popleft()
 
         params = []
         while len(parts) > 0:

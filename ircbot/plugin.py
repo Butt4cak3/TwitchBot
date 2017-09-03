@@ -4,9 +4,10 @@ class Plugin:
     _bot = None
     _path = None
 
-    def __init__(self, bot, path):
+    def __init__(self, bot, path, config):
         self._bot = bot
         self._path = path
+        self._config = config
         self.init()
 
     def init(self):
@@ -35,3 +36,6 @@ class Plugin:
             return self._path
         else:
             return os.path.join(self._path, path)
+
+    def get_config(self):
+        return self._config

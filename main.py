@@ -23,6 +23,7 @@ def main():
     config.setdefault('ops', [])
     config.setdefault('channels', [])
     config.setdefault('bots', [])
+    config.setdefault('plugins', {})
 
     with open(CONFIG_FILE, 'w') as f:
         json.dump(config, f, sort_keys=True, indent=4)
@@ -34,7 +35,7 @@ def main():
         print('Your configuration file is incomplete. Check config.json for empty values.')
         return
 
-    client = IRCBot((config['address']['host'], config['address']['port']))
+    client = IRCBot(config)
     client.register(config['username'], password=config['oauth'])
     client.ops = config['ops']
     client.bots = config['bots']
@@ -44,6 +45,9 @@ def main():
         client.main()
     except KeyboardInterrupt:
         client.quit()
+
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(client.get_config(), f, sort_keys=True, indent=4)
 
 if __name__ == '__main__':
     main()
