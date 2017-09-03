@@ -9,7 +9,6 @@ import os
 class IRCBot(irc.IRCClient):
     plugins = []
     commands = {}
-    command_prefix = ';'
     ops = []
     bots = []
     channels = []
@@ -68,7 +67,7 @@ class IRCBot(irc.IRCClient):
         if msg['command'] == 'PRIVMSG':
             privmsg = self.parse_privmsg(msg)
 
-            if len(privmsg['text']) > 0 and privmsg['text'][0] == self.command_prefix:
+            if len(privmsg['text']) > 0 and privmsg['text'][0] == self.get_config()['commandPrefix']:
                 self.handle_command(privmsg)
 
             for plugin in self.plugins:
@@ -93,15 +92,15 @@ class IRCBot(irc.IRCClient):
             self.execute_command(cmd)
 
     def has_permission(self, user, permissions):
-        if self.isop(sender):
+        if self.isop(user):
             return True
         elif 'everyone' in permissions:
             return True
-        elif 'mod' in permissions and sender['mod'] == 1:
+        elif 'mod' in permissions and user['mod'] == 1:
             return True
-        elif 'broadcaster' in permissions and 'broadcaster' in sender['badges']:
+        elif 'broadcaster' in permissions and 'broadcaster' in user['badges']:
             return True
-        elif 'subscriber' in permissions and sender['subscriber'] == '1':
+        elif 'subscriber' in permissions and user['subscriber'] == '1':
             return True
         else:
             return False
