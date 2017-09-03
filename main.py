@@ -24,6 +24,7 @@ def main():
     config.setdefault('channels', [])
     config.setdefault('bots', [])
     config.setdefault('plugins', {})
+    config.setdefault('commandPrefix', '!')
 
     with open(CONFIG_FILE, 'w') as f:
         json.dump(config, f, sort_keys=True, indent=4)

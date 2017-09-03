@@ -17,6 +17,9 @@ class Strawpoll(Plugin):
         if now < self.lastresponse + self.RESPONSE_INTERVAL:
             return
 
+        if msg['text'][0:24] != 'http://www.strawpoll.me/':
+            return
+
         sender = msg['sender']
 
         if self.get_bot().has_permission(sender, self.get_config()['previewLinks']):
