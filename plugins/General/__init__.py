@@ -43,7 +43,7 @@ class General(Plugin):
         bot = self.get_bot()
         cmds = []
         for cmd in bot.commands:
-            cmds.append(bot.command_prefix + cmd)
+            cmds.append(bot.get_config()['commandPrefix'] + cmd)
 
         bot.privmsg(channel, 'Available commands: {}'.format(' '.join(cmds)))
 
@@ -72,7 +72,7 @@ class General(Plugin):
 
         cmd_name = params[0]
         cmd_params = params[1:]
-            
+
         if len(params) > 1:
             if self.get_bot().command_exists(cmd_name):
                 self.get_bot().privmsg(channel, 'The command "{}" already exists.'.format(cmd_name))
