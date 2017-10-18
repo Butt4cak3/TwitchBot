@@ -9,7 +9,9 @@ class Stats(Plugin):
     db = None
 
     def init(self):
-        self.DB_FILE = self.get_path(self.DB_FILE)
+        self.get_config().setdefault('db_file', self.get_path(self.DB_FILE))
+
+        self.DB_FILE = self.get_config()['db_file']
         init_db = not os.path.isfile(self.DB_FILE)
         self.db = sqlite3.connect(self.DB_FILE)
         if init_db:
