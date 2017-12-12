@@ -9,12 +9,15 @@ class LinkPreview(Plugin):
     lastresponse = 0
     RESPONSE_INTERVAL = 20
     enabled = True
+    ignored = []
 
     def init(self):
         self.register_command('linkpreview', self.cmd_linkpreview)
         self.get_config().setdefault('previewLinks', [ 'broadcaster', 'moderator' ])
         self.get_config().setdefault('enabled', True)
+        self.get_config().setdefault('ignored_urls', [])
         self.enabled = self.get_config().get('enabled')
+        self.ignored = self.get_config().get('ignored_urls')
 
     def on_privmsg(self, msg):
         if not self.enabled:
@@ -33,6 +36,11 @@ class LinkPreview(Plugin):
             return
 
         url = match.group(0)
+
+        for pattern in self.ignored:
+            if re.search(pattern, url) is not None:
+                return
+
         title = self.get_site_title(url)
 
         if title is None:
