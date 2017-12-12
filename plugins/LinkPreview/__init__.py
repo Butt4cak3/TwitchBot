@@ -35,6 +35,9 @@ class LinkPreview(Plugin):
         url = match.group(0)
         title = self.get_site_title(url)
 
+        if title is None:
+            return
+
         channel = msg['channel']
         self.get_bot().privmsg(channel, '{}: {}'.format(title, url))
         self.lastresponse = now
