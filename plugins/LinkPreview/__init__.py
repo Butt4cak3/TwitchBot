@@ -47,7 +47,6 @@ class LinkPreview(Plugin):
         # Don't do this at home! Parsing HTML with regular expressions is bad.
         # But I'm also lazy, so screw it...
         match = re.search('<\s*title[^>]*>([^<]+)<\s*/\s*title\s*>', response)
-        print(match.group(0))
 
         if match is not None:
             return match.group(1)
