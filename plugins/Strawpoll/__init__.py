@@ -7,12 +7,18 @@ import json
 class Strawpoll(Plugin):
     lastresponse = 0
     RESPONSE_INTERVAL = 20
+    enabled = True
 
     def init(self):
         self.register_command('strawpoll', self.cmd_strawpoll)
         self.get_config().setdefault('previewLinks', [ 'broadcaster', 'moderator' ])
+        self.get_config().setdefault('enabled', True)
+        self.enabled = self.get_config().get('enabled')
 
     def on_privmsg(self, msg):
+        if not self.enabled:
+            return
+
         now = int(time.time())
         if now < self.lastresponse + self.RESPONSE_INTERVAL:
             return
