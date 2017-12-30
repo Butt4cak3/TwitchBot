@@ -53,5 +53,8 @@ class IRCConnection:
     def setblocking(self, mode):
         self.sock.setblocking(mode)
 
+    def settimeout(self, s):
+        self.sock.settimeout(s)
+
 def connect(address):
     return Connection(address)

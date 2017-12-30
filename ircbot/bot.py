@@ -18,6 +18,7 @@ class IRCBot(irc.IRCClient):
     def __init__(self, config):
         address = (config['address']['host'], config['address']['port'])
         super().__init__(address)
+        self.set_timeout(config['connectionTimeout'])
         self.config = config
         self.load_plugins()
 

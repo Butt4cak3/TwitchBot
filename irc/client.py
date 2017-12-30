@@ -1,8 +1,12 @@
 from . import IRCConnection
 from collections import deque
+import time
 
 class IRCClient:
     conn = IRCConnection()
+    timeout = 600
+    last_message = int(time.time())
+    address = None
 
     def __init__(self, address=None):
         if address is not None:
@@ -11,9 +15,15 @@ class IRCClient:
     def main(self):
         while True:
             text = self.recv()
+            now = int(time.time())
 
-            if text == False:
-                return
+            if (text == False) or (text == ''):
+                if now >= last_message + timeout:
+                    self.reconnect()
+                else:
+                    continue
+
+            self.last_message = now
 
             msg = self.parse_message(text)
 
@@ -23,11 +33,22 @@ class IRCClient:
             self.on_message(msg)
 
     def connect(self, address):
+        self.address = address
         self.conn.connect(address)
         self.conn.setblocking(True)
+        self.conn.settimeout(600)
 
     def disconnect(self):
         self.conn.close()
+
+    def reconnect(self):
+        self.disconnect()
+        self.connect(self.address)
+
+    def set_timeout(self, seconds):
+        self.timeout = seconds
+        self.conn.settimeout(seconds + 1)
+        pass
 
     def register(self, nick, user, realname=None, password=None):
         if realname is None:

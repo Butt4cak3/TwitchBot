@@ -15,6 +15,9 @@ def main():
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
 
+    # Twitch sends a PING about every 5 minutes, so 10 minutes should be safe
+    # to assume that the connection dropped
+    config.setdefault('connectionTimeout', 600)
     config.setdefault('address', {})
     config['address'].setdefault('host', 'irc.twitch.tv')
     config['address'].setdefault('port', 6667)
