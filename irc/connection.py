@@ -15,10 +15,7 @@ class IRCConnection:
 
     def recv(self):
         # Find out the length of the next message by peeking
-        try:
-            buf = self.sock.recv(511, socket.MSG_PEEK)
-        except:
-            return False
+        buf = self.sock.recv(511, socket.MSG_PEEK)
 
         if not buf:
             return False

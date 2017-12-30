@@ -18,7 +18,7 @@ class IRCClient:
             now = int(time.time())
 
             if (text == False) or (text == ''):
-                if now >= last_message + timeout:
+                if now >= self.last_message + self.timeout:
                     self.reconnect()
                 else:
                     continue
