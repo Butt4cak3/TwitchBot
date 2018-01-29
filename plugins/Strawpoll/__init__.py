@@ -33,7 +33,7 @@ class Strawpoll(Plugin):
             self.lastresponse = now
 
     def show_info(self, poll_id, channel):
-        request = requests.get('https://strawpoll.me/api/v2/polls/{}'.format(poll_id))
+        request = requests.get('https://www.strawpoll.me/api/v2/polls/{}'.format(poll_id))
         response = request.json()
 
         title = response['title']
@@ -54,7 +54,7 @@ class Strawpoll(Plugin):
 
         payload = json.dumps(poll)
 
-        request = requests.post('https://strawpoll.me/api/v2/polls', data=payload)
+        request = requests.post('https://www.strawpoll.me/api/v2/polls', data=payload)
         response = request.json()
 
-        self.get_bot().privmsg(channel, 'https://strawpoll.me/{}'.format(response['id']))
+        self.get_bot().privmsg(channel, 'https://www.strawpoll.me/{}'.format(response['id']))
