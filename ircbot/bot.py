@@ -67,6 +67,9 @@ class IRCBot(irc.IRCClient):
         if msg['command'] == 'PRIVMSG':
             privmsg = self.parse_privmsg(msg)
 
+            if self.isbot(privmsg['sender']):
+                return
+
             if len(privmsg['text']) > 0 and privmsg['text'][0] == self.get_config()['commandPrefix']:
                 self.handle_command(privmsg)
 
