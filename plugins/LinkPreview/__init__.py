@@ -47,7 +47,7 @@ class LinkPreview(Plugin):
             return
 
         channel = msg['channel']
-        self.get_bot().privmsg(channel, '{}: {}'.format(title, url))
+        self.get_bot().privmsg(channel, 'Link description: {}'.format(title))
         self.lastresponse = now
 
 
