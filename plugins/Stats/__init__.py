@@ -22,7 +22,13 @@ class Stats(Plugin):
         c.execute('''
         CREATE TABLE privmsg (
             time TEXT,
-            sender TEXT,
+            userid NUMBER,
+            name TEXT,
+            displayname TEXT,
+            mod NUMBER,
+            subscriber NUMBER,
+            bot NUMBER,
+            broadcaster NUMBER,
             channel TEXT,
             content TEXT
         )
@@ -35,12 +41,19 @@ class Stats(Plugin):
 
     def save_privmsg(self, msg):
         c = self.db.cursor()
+        sender = msg['sender']
         values = (
             strftime('%Y-%m-%d %H:%M:%S', gmtime()),
-            msg['sender']['nick'],
+            sender.get_id(),
+            sender.get_name(),
+            sender.get_displayname(),
+            1 if sender.is_mod() else 0,
+            1 if sender.is_subscriber() else 0,
+            1 if sender.is_bot() else 0,
+            1 if sender.is_broadcaster() else 0,
             msg['channel'],
             msg['text']
         )
-        c.execute('INSERT INTO privmsg (time, sender, channel, content) VALUES (?, ?, ?, ?)', values)
+        c.execute('INSERT INTO privmsg (time, userid, name, displayname, mod, subscriber, bot, broadcaster, channel, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', values)
         c.close()
         self.db.commit()

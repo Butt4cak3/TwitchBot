@@ -2,7 +2,7 @@ import pkgutil
 import inspect
 import irc
 import plugins
-from . import Plugin
+from . import Plugin, User
 import traceback
 import os
 
@@ -68,7 +68,7 @@ class IRCBot(irc.IRCClient):
         if msg['command'] == 'PRIVMSG':
             privmsg = self.parse_privmsg(msg)
 
-            if self.isbot(privmsg['sender']):
+            if privmsg['sender'].is_bot():
                 return
 
             if len(privmsg['text']) > 0 and privmsg['text'][0] == self.get_config()['commandPrefix']:
@@ -89,22 +89,22 @@ class IRCBot(irc.IRCClient):
 
         permissions = self.commands[cmd['command']]['permissions']
 
-        if self.isbot(cmd['sender']):
+        if sender.is_bot():
             return
 
         if self.has_permission(sender, permissions):
             self.execute_command(cmd)
 
     def has_permission(self, user, permissions):
-        if self.isop(user):
+        if user.is_op():
             return True
         elif 'everyone' in permissions:
             return True
-        elif 'mod' in permissions and user['mod'] == 1:
+        elif 'mod' in permissions and user.is_mod():
             return True
-        elif 'broadcaster' in permissions and 'broadcaster' in user['badges']:
+        elif 'broadcaster' in permissions and user.is_broadcaster():
             return True
-        elif 'subscriber' in permissions and user['subscriber'] == '1':
+        elif 'subscriber' in permissions and user.is_subscriber():
             return True
         else:
             return False
@@ -169,20 +169,10 @@ class IRCBot(irc.IRCClient):
     def command_exists(self, name):
         return name in self.commands
 
-    def isop(self, user):
-        if isinstance(user, str):
-            nick = user
-        else:
-            nick = user['nick']
-
+    def isop(self, nick):
         return nick in self.ops
 
-    def isbot(self, user):
-        if isinstance(user, str):
-            nick = user
-        else:
-            nick = user['nick']
-
+    def isbot(self, nick):
         return nick in self.bots
 
     def register(self, nick, password):
@@ -209,8 +199,12 @@ class IRCBot(irc.IRCClient):
             tags = {}
 
         result = super().parse_message(message)
-        tags['nick'] = result['sender']
-        result['sender'] = tags
+        nick = result['sender']
+        tags['nick'] = nick
+        if 'user-id' in tags:
+            result['sender'] = User(tags, self.isop(nick), self.isbot(nick))
+        else:
+            result['sender'] = tags
 
         return result
 

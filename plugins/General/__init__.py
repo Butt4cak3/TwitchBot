@@ -100,7 +100,7 @@ class General(Plugin):
                 else:
                     return params[name - 1]
             elif name == 'u':
-                return sender['nick']
+                return sender.get_displayname()
             elif name == 'c':
                 return channel[1:]
 
