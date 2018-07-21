@@ -96,18 +96,18 @@ class IRCBot(irc.IRCClient):
             self.execute_command(cmd)
 
     def has_permission(self, user, permissions):
-        if user.is_op():
+        if user.is_op() or user.is_broadcaster():
             return True
-        elif 'everyone' in permissions:
-            return True
-        elif 'mod' in permissions and user.is_mod():
-            return True
-        elif 'broadcaster' in permissions and user.is_broadcaster():
-            return True
-        elif 'subscriber' in permissions and user.is_subscriber():
-            return True
-        else:
-            return False
+
+        if user.is_mod():
+            if 'mod' in permissions or 'subscriber' in permissions:
+                return True
+
+        if user.is_subscriber():
+            if 'subscriber' in permissions:
+                return True
+
+        return 'everyone' in permissions
 
     def execute_command(self, cmd):
         if cmd['command'] in self.commands:
