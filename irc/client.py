@@ -1,4 +1,5 @@
 from . import IRCConnection
+from . import ConnectionLostException
 from collections import deque
 import time
 
@@ -15,6 +16,10 @@ class IRCClient:
     def main(self):
         while True:
             text = self.recv()
+
+            if text == False:
+                raise ConnectionLostException('recv returned False')
+
             now = int(time.time())
 
             if (text == False) or (text == ''):
