@@ -17,10 +17,12 @@ class Stats(Plugin):
         if init_db:
             self.init_db()
 
+        self.register_command('count', self.cmd_count, permissions=('mod', 'broadcaster'))
+
     def init_db(self):
         c = self.db.cursor()
         c.execute('''
-        CREATE TABLE privmsg (
+        CREATE TABLE IF NOT EXISTS privmsg (
             time TEXT,
             userid NUMBER,
             name TEXT,
@@ -31,6 +33,14 @@ class Stats(Plugin):
             broadcaster NUMBER,
             channel TEXT,
             content TEXT
+        )
+        ''')
+        c.execute('''
+        CREATE TABLE IF NOT EXISTS counter (
+            channel TEXT,
+            name TEXT,
+            value NUMBER,
+            PRIMARY KEY (channel, name)
         )
         ''')
         self.db.commit()
@@ -57,3 +67,18 @@ class Stats(Plugin):
         c.execute('INSERT INTO privmsg (time, userid, name, displayname, mod, subscriber, bot, broadcaster, channel, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', values)
         c.close()
         self.db.commit()
+
+    def cmd_count(self, params, channel, sender, command):
+        if len(params) < 1:
+            return
+
+        name = params[0]
+        c = self.db.cursor()
+        c.execute('INSERT OR IGNORE INTO counter (channel, name, value) VALUES (?, ?, ?)', (channel, name, 0))
+        c.execute('UPDATE counter SET value = value + 1 WHERE channel = ? AND name = ?', (channel, name))
+        c.execute('SELECT value FROM counter WHERE channel = ? AND name = ?', (channel, name))
+        rows = c.fetchall()
+        c.close()
+        self.db.commit()
+
+        self.get_bot().privmsg(channel, '{} counter is at {}'.format(name, rows[0][0]))
