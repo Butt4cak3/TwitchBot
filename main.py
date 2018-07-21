@@ -4,6 +4,7 @@ import irc
 from ircbot import IRCBot
 import json
 import os
+import time
 
 CONFIG_FILE = 'config.json'
 
@@ -39,16 +40,21 @@ def main():
         print('Your configuration file is incomplete. Check config.json for empty values.')
         return
 
-    client = IRCBot(config)
-    client.register(config['username'], password=config['oauth'])
-    client.ops = config['ops']
-    client.bots = config['bots']
-    client.channels = config['channels']
-
-    try:
-        client.main()
-    except KeyboardInterrupt:
-        client.quit()
+    retry = True
+    while retry:
+        try:
+            client = IRCBot(config)
+            client.register(config['username'], password=config['oauth'])
+            client.ops = config['ops']
+            client.bots = config['bots']
+            client.channels = config['channels']
+            client.main()
+        except KeyboardInterrupt:
+            client.quit()
+            retry = False
+        except irc.ConnectionLostException:
+            # Retry after some time
+            time.sleep(60)
 
     with open(CONFIG_FILE, 'w') as f:
         json.dump(client.get_config(), f, sort_keys=True, indent=4)
