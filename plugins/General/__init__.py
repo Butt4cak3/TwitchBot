@@ -62,7 +62,7 @@ class General(Plugin):
 
     def cmd_alias(self, params, channel, sender, command):
         if len(params) > 1 and params[0][0] == '@':
-            permissions = params.pop(0)[1:].split('c')
+            permissions = params.pop(0)[1:].split(',')
         else:
             permissions = None
 
