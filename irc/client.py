@@ -16,15 +16,11 @@ class IRCClient:
     def main(self):
         while True:
             text = self.recv()
-
-            if text == False:
-                raise ConnectionLostException('recv returned False')
-
             now = int(time.time())
 
             if (text == False) or (text == ''):
                 if now >= self.last_message + self.timeout:
-                    self.reconnect()
+                    raise ConnectionLostException('recv returned False')
                 else:
                     continue
 
@@ -45,10 +41,6 @@ class IRCClient:
 
     def disconnect(self):
         self.conn.close()
-
-    def reconnect(self):
-        self.disconnect()
-        self.connect(self.address)
 
     def set_timeout(self, seconds):
         self.timeout = seconds
