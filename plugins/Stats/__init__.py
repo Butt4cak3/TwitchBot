@@ -73,9 +73,22 @@ class Stats(Plugin):
             return
 
         name = params[0]
+
+        if len(params) == 3:
+            modifier = params[1]
+            num = int(params[2])
+        else:
+            modifier = 'add'
+            num = 1
+
         c = self.db.cursor()
         c.execute('INSERT OR IGNORE INTO counter (channel, name, value) VALUES (?, ?, ?)', (channel, name, 0))
-        c.execute('UPDATE counter SET value = value + 1 WHERE channel = ? AND name = ?', (channel, name))
+
+        if modifier == 'add':
+            c.execute('UPDATE counter SET value = value + ? WHERE channel = ? AND name = ?', (num, channel, name))
+        elif modifier == 'set':
+            c.execute('UPDATE counter SET value = ? WHERE channel = ? AND name = ?', (num, channel, name))
+
         c.execute('SELECT value FROM counter WHERE channel = ? AND name = ?', (channel, name))
         rows = c.fetchall()
         c.close()
