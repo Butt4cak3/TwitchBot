@@ -181,7 +181,11 @@ class IRCBot(irc.IRCClient):
         self.send('CAP REQ :twitch.tv/tags')
 
     def send(self, message):
-        print('--> {}'.format(message))
+        if message[0:4] == 'PASS':
+            print('--> PASS *****')
+        else:
+            print('--> {}'.format(message))
+
         super().send(message)
 
     def recv(self):
