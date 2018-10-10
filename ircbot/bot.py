@@ -2,7 +2,7 @@ import pkgutil
 import inspect
 import irc
 import plugins
-from . import Plugin, User, Permission
+from . import Plugin, User, Permission, Command
 import traceback
 import os
 
@@ -99,13 +99,13 @@ class IRCBot(irc.IRCClient):
 
     def handle_command(self, privmsg):
         """Parse a command message and execute it."""
-        cmd = self.parse_command(privmsg)
-        sender = cmd["sender"]
+        cmd = Command.from_privmsg(privmsg)
+        sender = cmd.sender
 
-        if not cmd["command"] in self.commands:
+        if cmd.name not in self.commands:
             return
 
-        permissions = self.commands[cmd["command"]]["permissions"]
+        permissions = self.commands[cmd.name]["permissions"]
 
         if sender.is_bot():
             return
@@ -115,51 +115,16 @@ class IRCBot(irc.IRCClient):
 
     def execute_command(self, cmd):
         """Check permissions and delegate command to the appropirate plugin."""
-        if cmd["command"] in self.commands:
-            handler = self.commands[cmd["command"]]["handler"]
+        if cmd.name in self.commands:
+            handler = self.commands[cmd.name]["handler"]
             try:
-                handler(cmd["params"], cmd["channel"],
-                        cmd["sender"], cmd["command"])
+                handler(cmd.params, cmd.channel,
+                        cmd.sender, cmd.name)
             except:
-                self.privmsg(cmd["channel"],
-                             "I tried, but something happened during the"
-                             " execution of that command.")
+                self.say(cmd.channel,
+                         "I tried, but something happened during the"
+                         " execution of that command.")
                 print(traceback.format_exc())
-
-    def parse_command(self, privmsg):
-        """Parse a command message string and return it as an object."""
-        parts = privmsg.text.split(" ")
-        command = parts.pop(0)[1:].lower()
-        params = []
-
-        while len(parts) > 0:
-            part = parts.pop(0)
-
-            if len(part) == 0:
-                continue
-
-            if part[0] == "\"":
-                param = part[1:]
-                if param[-1] == "\"":
-                    param = param[0:-1]
-                else:
-                    while len(parts) > 0:
-                        p = parts.pop(0)
-                        if len(p) > 0 and p[-1] == "\"":
-                            param += " " + p[0:-1]
-                            break
-                        else:
-                            param += " " + p
-                params.append(param)
-            else:
-                params.append(part)
-
-        return {
-            "sender": privmsg.sender,
-            "channel": privmsg.channel[1:],
-            "command": command,
-            "params": params
-        }
 
     def register_command(self, name, handler, permissions=None):
         """Define a new command for the bot.
