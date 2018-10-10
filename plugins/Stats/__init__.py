@@ -3,25 +3,27 @@ import sqlite3
 import os
 from time import gmtime, strftime
 
+
 class Stats(Plugin):
-    DB_FILE = 'stats.sqlite'
+    DB_FILE = "stats.sqlite"
 
     db = None
 
     def init(self):
-        self.get_config().setdefault('db_file', self.get_path(self.DB_FILE))
+        self.get_config().setdefault("db_file", self.get_path(self.DB_FILE))
 
-        self.DB_FILE = self.get_config()['db_file']
+        self.DB_FILE = self.get_config()["db_file"]
         init_db = not os.path.isfile(self.DB_FILE)
         self.db = sqlite3.connect(self.DB_FILE)
         if init_db:
             self.init_db()
 
-        self.register_command('count', self.cmd_count, permissions=('mod', 'broadcaster'))
+        self.register_command("count", self.cmd_count,
+                              permissions=("mod", "broadcaster"))
 
     def init_db(self):
         c = self.db.cursor()
-        c.execute('''
+        c.execute("""
         CREATE TABLE IF NOT EXISTS privmsg (
             time TEXT,
             userid NUMBER,
@@ -34,15 +36,15 @@ class Stats(Plugin):
             channel TEXT,
             content TEXT
         )
-        ''')
-        c.execute('''
+        """)
+        c.execute("""
         CREATE TABLE IF NOT EXISTS counter (
             channel TEXT,
             name TEXT,
             value NUMBER,
             PRIMARY KEY (channel, name)
         )
-        ''')
+        """)
         self.db.commit()
         c.close()
 
@@ -51,9 +53,9 @@ class Stats(Plugin):
 
     def save_privmsg(self, msg):
         c = self.db.cursor()
-        sender = msg['sender']
+        sender = msg["sender"]
         values = (
-            strftime('%Y-%m-%d %H:%M:%S', gmtime()),
+            strftime("%Y-%m-%d %H:%M:%S", gmtime()),
             sender.get_id(),
             sender.get_name(),
             sender.get_displayname(),
@@ -61,10 +63,16 @@ class Stats(Plugin):
             1 if sender.is_subscriber() else 0,
             1 if sender.is_bot() else 0,
             1 if sender.is_broadcaster() else 0,
-            msg['channel'],
-            msg['text']
+            msg["channel"],
+            msg["text"]
         )
-        c.execute('INSERT INTO privmsg (time, userid, name, displayname, mod, subscriber, bot, broadcaster, channel, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', values)
+        sql = """
+        INSERT INTO privmsg (
+            time, userid, name, displayname, mod, subscriber, bot,
+            broadcaster, channel, content)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        c.execute(sql, values)
         c.close()
         self.db.commit()
 
@@ -78,20 +86,30 @@ class Stats(Plugin):
             modifier = params[1]
             num = int(params[2])
         else:
-            modifier = 'add'
+            modifier = "add"
             num = 1
 
         c = self.db.cursor()
-        c.execute('INSERT OR IGNORE INTO counter (channel, name, value) VALUES (?, ?, ?)', (channel, name, 0))
+        sql = """
+        INSERT OR IGNORE INTO counter (channel, name, value)
+        VALUES (?, ?, ?)
+        """
+        c.execute(sql, (channel, name, 0))
 
-        if modifier == 'add':
-            c.execute('UPDATE counter SET value = value + ? WHERE channel = ? AND name = ?', (num, channel, name))
-        elif modifier == 'set':
-            c.execute('UPDATE counter SET value = ? WHERE channel = ? AND name = ?', (num, channel, name))
+        if modifier == "add":
+            sql = """
+            UPDATE counter SET value = value + ? WHERE channel = ? AND name = ?
+            """
+            c.execute(sql, (num, channel, name))
+        elif modifier == "set":
+            sql = "UPDATE counter SET value = ? WHERE channel = ? AND name = ?"
+            c.execute(sql, (num, channel, name))
 
-        c.execute('SELECT value FROM counter WHERE channel = ? AND name = ?', (channel, name))
+        sql = "SELECT value FROM counter WHERE channel = ? AND name = ?"
+        c.execute(sql, (channel, name))
         rows = c.fetchall()
         c.close()
         self.db.commit()
 
-        self.get_bot().privmsg(channel, '{} counter is at {}'.format(name, rows[0][0]))
+        msg = "{} counter is at {}".format(name, rows[0][0])
+        self.get_bot().privmsg(channel, msg)

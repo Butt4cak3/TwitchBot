@@ -1,28 +1,28 @@
 class User:
-    _id = ''
-    _name = ''
-    _displayname = ''
-    _color = ''
+    _id = ""
+    _name = ""
+    _displayname = ""
+    _color = ""
     _mod = False
     _turbo = False
-    _type = ''
-    _badges = ''
+    _type = ""
+    _badges = ""
     _subscriber = False
     _op = False
     _bot = False
 
     def __init__(self, tags, is_op, is_bot):
-        self._id = tags['user-id']
-        self._name = tags['nick']
-        self._displayname = tags['display-name']
-        self._color = tags['color']
-        if tags['mod'] == '1':
+        self._id = tags["user-id"]
+        self._name = tags["nick"]
+        self._displayname = tags["display-name"]
+        self._color = tags["color"]
+        if tags["mod"] == "1":
             self._mod = True
-        if tags['turbo'] == '1':
+        if tags["turbo"] == "1":
             self._turbo = True
-        self._type = tags['user-type']
-        self._badges = tags['badges']
-        if tags['subscriber'] == '1':
+        self._type = tags["user-type"]
+        self._badges = tags["badges"]
+        if tags["subscriber"] == "1":
             self._subscriber = True
         self._op = is_op
         self._bot = is_bot
@@ -58,4 +58,4 @@ class User:
         return self._bot
 
     def is_broadcaster(self):
-        return 'broadcaster' in self.get_badges()
+        return "broadcaster" in self.get_badges()

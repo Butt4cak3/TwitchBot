@@ -1,5 +1,6 @@
 import os.path
 
+
 class Plugin:
     _bot = None
     _path = None

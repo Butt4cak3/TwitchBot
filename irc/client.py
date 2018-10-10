@@ -3,6 +3,7 @@ from . import ConnectionLostException
 from collections import deque
 import time
 
+
 class IRCClient:
     conn = IRCConnection()
     timeout = 600
@@ -18,9 +19,9 @@ class IRCClient:
             text = self.recv()
             now = int(time.time())
 
-            if (text == False) or (text == ''):
+            if (text is False) or (text == ""):
                 if now >= self.last_message + self.timeout:
-                    raise ConnectionLostException('recv returned False')
+                    raise ConnectionLostException("recv returned False")
                 else:
                     continue
 
@@ -28,7 +29,7 @@ class IRCClient:
 
             msg = self.parse_message(text)
 
-            if msg['command'] == 'PING':
+            if msg["command"] == "PING":
                 self.handle_ping(msg)
 
             self.on_message(msg)
@@ -52,19 +53,19 @@ class IRCClient:
             realname = user
 
         if password is not None:
-            self.send('PASS {}'.format(password))
+            self.send("PASS {}".format(password))
 
-        self.send('NICK {}'.format(nick))
-        self.send('USER {} {} {} :{}'.format(user, user, user, realname))
+        self.send("NICK {}".format(nick))
+        self.send("USER {} {} {} :{}".format(user, user, user, realname))
 
     def handle_ping(self, msg):
-        self.send('PONG :{}'.format(' '.join(msg['params'])))
+        self.send("PONG :{}".format(" ".join(msg["params"])))
 
     def privmsg(self, channel, message):
-        self.send('PRIVMSG {} :{}'.format(channel, message))
+        self.send("PRIVMSG {} :{}".format(channel, message))
 
-    def quit(self, message=''):
-        self.send('QUIT :{}'.format(message))
+    def quit(self, message=""):
+        self.send("QUIT :{}".format(message))
         self.disconnect()
 
     def send(self, message):
@@ -74,12 +75,12 @@ class IRCClient:
         return self.conn.recv()
 
     def parse_message(self, text):
-        parts = deque(text.split(' '))
+        parts = deque(text.split(" "))
 
-        if parts[0][0] == ':':
+        if parts[0][0] == ":":
             sender = parts.popleft()
             sender = sender[1:]
-            bangpos = sender.find('!')
+            bangpos = sender.find("!")
             if bangpos != -1:
                 sender = sender[0:bangpos]
         else:
@@ -90,25 +91,25 @@ class IRCClient:
         params = []
         while len(parts) > 0:
             part = parts.popleft()
-            if len(part) > 0 and part[0] == ':':
+            if len(part) > 0 and part[0] == ":":
                 param = part[1:]
                 while len(parts) > 0:
-                    param += ' ' + parts.popleft()
+                    param += " " + parts.popleft()
                 params.append(param)
             else:
                 params.append(part)
 
         return {
-            'sender': sender,
-            'command': action,
-            'params': params
+            "sender": sender,
+            "command": action,
+            "params": params
         }
 
     def parse_privmsg(self, msg):
         return {
-            'sender': msg['sender'],
-            'channel': msg['params'][0],
-            'text': msg['params'][1]
+            "sender": msg["sender"],
+            "channel": msg["params"][0],
+            "text": msg["params"][1]
         }
 
     def on_message(self, message):

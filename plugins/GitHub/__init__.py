@@ -3,21 +3,23 @@ import re
 import requests
 import time
 
+
 class GitHub(Plugin):
     def init(self):
-        self.get_config().setdefault('repos', {})
-        self.get_config().setdefault('api_key', '')
+        self.get_config().setdefault("repos", {})
+        self.get_config().setdefault("api_key", "")
 
     def on_privmsg(self, privmsg):
-        matches = re.finditer('#(\d+)', privmsg['text'])
+        matches = re.finditer(r"#(\d+)", privmsg["text"])
         for match in matches:
             issue_number = match.group(1)
 
-            issue = self.get_issue_data(privmsg['channel'], issue_number)
+            issue = self.get_issue_data(privmsg["channel"], issue_number)
             if issue is None:
                 return
 
-            self.get_bot().privmsg(privmsg['channel'], '{title}: {url}'.format(**issue))
+            msg = "{title}: {url}".format(**issue)
+            self.get_bot().privmsg(privmsg["channel"], msg)
             time.sleep(1)
 
     def get_issue_data(self, channel, issue_number):
@@ -29,7 +31,7 @@ class GitHub(Plugin):
         if repo is None:
             return None
 
-        query = '''
+        query = """
         {{
             repository(owner: "{repo_owner}", name: "{repo_name}") {{
                 {type}(number: {issue_number}) {{
@@ -38,19 +40,22 @@ class GitHub(Plugin):
                 }}
             }}
         }}
-        '''.format(type=type, repo_owner=repo['owner'], repo_name=repo['name'], issue_number=issue_number)
+        """.format(type=type, repo_owner=repo["owner"], repo_name=repo["name"],
+                   issue_number=issue_number)
         result = self.run_query(query)
-        if result is None or result['data'] is None or result['data']['repository'] is None or result['data']['repository'][type] is None:
+        if (result is None or result["data"] is None or
+                result["data"]["repository"] is None or
+                result["data"]["repository"][type] is None):
             return None
 
-        return result['data']['repository'][type]
+        return result["data"]["repository"][type]
 
     def get_issue_type(self, channel, issue_number):
         repo = self.get_repo(channel)
         if repo is None:
             return None
 
-        query = '''
+        query = """
         {{
             repository(owner: "{repo_owner}", name: "{repo_name}") {{
                 issueOrPullRequest(number: {issue_number}) {{
@@ -58,41 +63,50 @@ class GitHub(Plugin):
                 }}
             }}
         }}
-        '''
-        result = self.run_query(query.format(repo_owner=repo['owner'], repo_name=repo['name'], issue_number=issue_number))
-        if result is None or result['data'] is None or result['data']['repository'] is None or result['data']['repository']['issueOrPullRequest'] is None:
+        """
+        result = self.run_query(
+            query.format(repo_owner=repo["owner"], repo_name=repo["name"],
+                         issue_number=issue_number))
+
+        if (result is None or result["data"] is None or
+                result["data"]["repository"] is None or
+                result["data"]["repository"]["issueOrPullRequest"] is None):
             return None
 
-        if result['data']['repository']['issueOrPullRequest']['__typename'] == 'Issue':
-            return 'issue'
+        typename = (result["data"]["repository"]
+                    ["issueOrPullRequest"]["__typename"])
+        if typename == "Issue":
+            return "issue"
         else:
-            return 'pullRequest'
+            return "pullRequest"
 
     def run_query(self, query):
-        api_key = self.get_config().get('api_key', None)
-        if api_key is None or api_key.strip() == '':
+        api_key = self.get_config().get("api_key", None)
+        if api_key is None or api_key.strip() == "":
             return
 
         headers = {
-            'Authorization': 'Bearer {}'.format(api_key)
+            "Authorization": "Bearer {}".format(api_key)
         }
 
-        request = requests.post('https://api.github.com/graphql', json={ 'query': query }, headers=headers)
+        request = requests.post("https://api.github.com/graphql",
+                                json={"query": query}, headers=headers)
 
         if request.status_code == 200:
             return request.json()
         else:
-            print('GitHub API request failed with {}'.format(request.status_code))
+            print("GitHub API request failed with {}"
+                  .format(request.status_code))
             return None
 
     def get_repo(self, channel):
-        repos = self.get_config().get('repos')
-        if not channel in repos:
+        repos = self.get_config().get("repos")
+        if channel not in repos:
             return None
 
         name_with_owner = repos[channel]
-        info = name_with_owner.split('/')
+        info = name_with_owner.split("/")
         return {
-            'owner': info[0],
-            'name': info[1]
+            "owner": info[0],
+            "name": info[1]
         }
