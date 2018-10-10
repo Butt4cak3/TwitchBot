@@ -144,10 +144,10 @@ class IRCBot(irc.IRCClient):
         }
 
     def register_command(self, name, handler, permissions=None):
-        if isinstance(permissions, str):
+        if isinstance(permissions, Permission):
             permissions = (permissions,)
         elif permissions is None:
-            permissions = ("broadcaster", "mod")
+            permissions = (Permission.Broadcaster, Permission.Moderator)
 
         self.commands[name] = {
             "permissions": tuple(permissions),
