@@ -1,4 +1,4 @@
-from ircbot import Plugin
+from ircbot import Plugin, Permission
 import requests
 import time
 import html
@@ -15,7 +15,8 @@ class LinkPreview(Plugin):
     def init(self):
         self.register_command("linkpreview", self.cmd_linkpreview)
         self.get_config().setdefault("previewLinks",
-                                     ["broadcaster", "moderator"])
+                                     [Permission.Broadcaster,
+                                      Permission.Moderator])
         self.get_config().setdefault("enabled", True)
         self.get_config().setdefault("ignored_urls", [])
         self.enabled = self.get_config().get("enabled")
@@ -31,7 +32,7 @@ class LinkPreview(Plugin):
 
         sender = msg["sender"]
         permission = self.get_config()["previewLinks"]
-        if not self.get_bot().has_permission(sender, permission):
+        if not sender.has_permission(permission):
             return
 
         match = re.search(r"https?://\S+", msg["text"])

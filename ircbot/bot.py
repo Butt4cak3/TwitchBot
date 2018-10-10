@@ -2,7 +2,7 @@ import pkgutil
 import inspect
 import irc
 import plugins
-from . import Plugin, User
+from . import Plugin, User, Permission
 import traceback
 import os
 
@@ -94,22 +94,8 @@ class IRCBot(irc.IRCClient):
         if sender.is_bot():
             return
 
-        if self.has_permission(sender, permissions):
+        if sender.has_permission(permissions):
             self.execute_command(cmd)
-
-    def has_permission(self, user, permissions):
-        if user.is_op() or user.is_broadcaster():
-            return True
-
-        if user.is_mod():
-            if "mod" in permissions or "subscriber" in permissions:
-                return True
-
-        if user.is_subscriber():
-            if "subscriber" in permissions:
-                return True
-
-        return "everyone" in permissions
 
     def execute_command(self, cmd):
         if cmd["command"] in self.commands:

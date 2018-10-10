@@ -1,4 +1,4 @@
-from ircbot import Plugin
+from ircbot import Plugin, Permission
 import os
 import json
 import re
@@ -12,14 +12,14 @@ class General(Plugin):
 
     def init(self):
         self.register_command("help", self.cmd_help,
-                              permissions=("everyone",))
+                              permissions=(Permission.Everyone,))
         self.register_command("commands", self.cmd_help,
-                              permissions=("everyone",))
+                              permissions=(Permission.Everyone,))
         self.register_command("say", self.cmd_say)
         self.register_command("quit", self.cmd_quit)
         self.register_command("alias", self.cmd_alias)
         self.register_command("uptime", self.cmd_uptime,
-                              permissions=("everyone",))
+                              permissions=(Permission.Everyone,))
 
         self.DB_FILE = self.get_path(self.DB_FILE)
 
@@ -41,8 +41,9 @@ class General(Plugin):
 
         for key in self.alias:
             alias = self.alias[key]
+            permissions = Permission.from_strings(alias["permissions"])
             self.register_command(key, self.cmd_custom,
-                                  permissions=alias["permissions"])
+                                  permissions=permissions)
 
     def cmd_help(self, params, channel, sender, command):
         bot = self.get_bot()
@@ -69,10 +70,12 @@ class General(Plugin):
         if len(params) > 1 and params[0][0] == "@":
             permissions = params.pop(0)[1:].split(",")
         else:
-            permissions = None
+            permissions = []
 
-        if ((permissions is None and len(params) < 1) or
-                (permissions is not None and len(params) < 2)):
+        permissions = Permission.from_strings(permissions)
+
+        if ((len(permissions) == 0 and len(params) < 1) or
+                (len(permissions) > 0 and len(params) < 2)):
             self.get_bot().privmsg(channel, "Not enough parameters")
             return
 
@@ -86,7 +89,7 @@ class General(Plugin):
                 return
 
             self.alias[cmd_name] = {
-                "permissions": permissions,
+                "permissions": Permission.to_strings(permissions),
                 "params": cmd_params
             }
             self.register_command(cmd_name, self.cmd_custom,

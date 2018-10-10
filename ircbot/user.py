@@ -1,3 +1,6 @@
+from . import Permission
+
+
 class User:
     _id = ""
     _name = ""
@@ -10,6 +13,7 @@ class User:
     _subscriber = False
     _op = False
     _bot = False
+    _permissions = [Permission.Everyone]
 
     def __init__(self, tags, is_op, is_bot):
         self._id = tags["user-id"]
@@ -26,6 +30,15 @@ class User:
             self._subscriber = True
         self._op = is_op
         self._bot = is_bot
+
+        if self.is_subscriber():
+            self._permissions.append(Permission.Subscriber)
+        if self.is_mod():
+            self._permissions.append(Permission.Moderator)
+        if self.is_broadcaster():
+            self._permissions.append(Permission.Broadcaster)
+        if self.is_op():
+            self._permissions.append(Permission.OP)
 
     def get_id(self):
         return self._id
@@ -59,3 +72,11 @@ class User:
 
     def is_broadcaster(self):
         return "broadcaster" in self.get_badges()
+
+    def has_permission(self, permissions):
+        for required in permissions:
+            for actual in self._permissions:
+                if actual >= required:
+                    return True
+        else:
+            return False
