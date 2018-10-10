@@ -51,17 +51,17 @@ class General(Plugin):
         for cmd in bot.commands:
             cmds.append(bot.get_config()["commandPrefix"] + cmd)
 
-        bot.privmsg(channel, "Available commands: {}".format(" ".join(cmds)))
+        bot.say(channel, "Available commands: {}".format(" ".join(cmds)))
 
     def cmd_say(self, params, channel, sender, command):
         if params[0][0] == "#":
-            target_channel = params[0]
+            target_channel = params[0][1:]
             message = " ".join(params[1:])
         else:
             target_channel = channel
             message = " ".join(params)
 
-        self.get_bot().privmsg(target_channel, message)
+        self.get_bot().say(target_channel, message)
 
     def cmd_quit(self, params, channel, sender, command):
         self.get_bot().quit()
@@ -117,7 +117,7 @@ class General(Plugin):
             elif name == "u":
                 return sender.get_displayname()
             elif name == "c":
-                return channel[1:]
+                return channel
 
         alias = self.alias[command]
 
@@ -135,7 +135,7 @@ class General(Plugin):
         self.get_bot().execute_command(cmd)
 
     def cmd_uptime(self, params, channel, sender, command):
-        streamer = channel[1:]
+        streamer = channel
         url = "https://api.twitch.tv/kraken/streams/{}".format(streamer)
         headers = {
             "Accept": "application/vnd.twitchtv.v3+json",
@@ -157,7 +157,7 @@ class General(Plugin):
             seconds -= minutes * 60
 
             msg = "Uptime: {} hours, {} minutes".format(hours, minutes)
-            self.get_bot().privmsg(channel, msg)
+            self.get_bot().say(channel, msg)
         else:
             msg = "{} is currently offline.".format(streamer)
-            self.get_bot().privmsg(channel, msg)
+            self.get_bot().say(channel, msg)

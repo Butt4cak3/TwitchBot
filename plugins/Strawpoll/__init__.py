@@ -51,7 +51,7 @@ class Strawpoll(Plugin):
         if len(params) < 3:
             msg = ("To create a poll, you have to provide a title and at least"
                    " two options.")
-            self.get_bot().privmsg(channel, msg)
+            self.get_bot().say(channel, msg)
             return
 
         poll = {
@@ -66,4 +66,4 @@ class Strawpoll(Plugin):
         response = request.json()
 
         msg = "https://www.strawpoll.me/{}".format(response["id"])
-        self.get_bot().privmsg(channel, msg)
+        self.get_bot().say(channel, msg)

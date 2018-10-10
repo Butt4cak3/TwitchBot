@@ -95,7 +95,7 @@ class IRCBot(irc.IRCClient):
                 plugin.on_privmsg(privmsg)
         elif msg["command"] == "376":
             for channel in self.channels:
-                self.send("JOIN {}".format(channel))
+                self.send("JOIN #{}".format(channel))
 
     def handle_command(self, privmsg):
         """Parse a command message and execute it."""
@@ -156,7 +156,7 @@ class IRCBot(irc.IRCClient):
 
         return {
             "sender": privmsg["sender"],
-            "channel": privmsg["channel"],
+            "channel": privmsg["channel"][1:],
             "command": command,
             "params": params
         }
@@ -204,6 +204,9 @@ class IRCBot(irc.IRCClient):
     def isbot(self, nick):
         """Check whether a name is specified as a bot in the configuration."""
         return nick in self.bots
+
+    def say(self, channel, message):
+        self.privmsg("#" + channel, message)
 
     def register(self, nick, password):
         """Authenticate with the chat server."""
