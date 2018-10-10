@@ -8,6 +8,12 @@ import os
 
 
 class IRCBot(irc.IRCClient):
+    """An instance of a chat bot.
+
+    Provides a way to connect to and communicate with the chat server and to
+    react to certain events and commands.
+    """
+
     plugins = []
     commands = {}
     ops = []
@@ -17,6 +23,7 @@ class IRCBot(irc.IRCClient):
     config = None
 
     def __init__(self, config):
+        """Store configuration options and load plugins."""
         address = (config["address"]["host"], config["address"]["port"])
         super().__init__(address)
         self.set_timeout(config["connectionTimeout"])
@@ -24,15 +31,18 @@ class IRCBot(irc.IRCClient):
         self.load_plugins()
 
     def get_config(self):
+        """Return the configuration as a dict."""
         return self.config
 
     def load_plugins(self):
+        """Load all plugins that are located in the plugin direcory."""
         for _imp, modname, ispkg in pkgutil.iter_modules(plugins.__path__):
             if ispkg:
                 if not self.load_plugin(modname):
                     print("Could not load plugin \"{}\"".format(modname))
 
     def load_plugin(self, modname):
+        """Load a specific plugin from the plugin directory."""
         prefix = plugins.__name__ + "."
 
         try:
@@ -63,6 +73,11 @@ class IRCBot(irc.IRCClient):
         return True
 
     def on_message(self, msg):
+        """Handle a chat message.
+
+        React to a few IRC commands and call the on_privmsg and on_message
+        methods of all plugins.
+        """
         for plugin in self.plugins:
             plugin.on_message(msg)
 
@@ -83,6 +98,7 @@ class IRCBot(irc.IRCClient):
                 self.send("JOIN {}".format(channel))
 
     def handle_command(self, privmsg):
+        """Parse a command message and execute it."""
         cmd = self.parse_command(privmsg)
         sender = cmd["sender"]
 
@@ -98,6 +114,7 @@ class IRCBot(irc.IRCClient):
             self.execute_command(cmd)
 
     def execute_command(self, cmd):
+        """Check permissions and delegate command to the appropirate plugin."""
         if cmd["command"] in self.commands:
             handler = self.commands[cmd["command"]]["handler"]
             try:
@@ -110,6 +127,7 @@ class IRCBot(irc.IRCClient):
                 print(traceback.format_exc())
 
     def parse_command(self, privmsg):
+        """Parse a command message string and return it as an object."""
         parts = privmsg["text"].split(" ")
         command = parts.pop(0)[1:].lower()
         params = []
@@ -144,6 +162,23 @@ class IRCBot(irc.IRCClient):
         }
 
     def register_command(self, name, handler, permissions=None):
+        """Define a new command for the bot.
+
+        A command must have a name that is used to call it with in chat. A
+        command with the name "test" is called in chat with "!test", assuming
+        that the command prefix is set to an exclamation point ("!").
+
+        The permissions of the command define who is allowed to run the
+        command. They must be passed as a list or tuple and contain members of
+        the Permission enum.
+
+        The handler is the function or method that will be called whenever
+        a user tries to execute the command and has the appropriate permissions
+        to do so. It is passed a list of command parameters, the name of the
+        channel the command was issued from, a User object representing the
+        caller of the command and an object holding more information about the
+        command itself.
+        """
         if isinstance(permissions, Permission):
             permissions = (permissions,)
         elif permissions is None:
@@ -155,23 +190,29 @@ class IRCBot(irc.IRCClient):
         }
 
     def unregister_command(self, name):
+        """Remove the command with the given name from the bot."""
         self.commands.pop(name)
 
     def command_exists(self, name):
+        """Check whether a command with a given name currently exists."""
         return name in self.commands
 
     def isop(self, nick):
+        """Check whether a name is specified as an OP in the configuration."""
         return nick in self.ops
 
     def isbot(self, nick):
+        """Check whether a name is specified as a bot in the configuration."""
         return nick in self.bots
 
     def register(self, nick, password):
+        """Authenticate with the chat server."""
         self.oauth = password[6:]
         super().register(nick, nick, nick, password)
         self.send("CAP REQ :twitch.tv/tags")
 
     def send(self, message):
+        """Send a raaw message to the server."""
         if message[0:4] == "PASS":
             print("--> PASS *****")
         else:
@@ -180,12 +221,14 @@ class IRCBot(irc.IRCClient):
         super().send(message)
 
     def recv(self):
+        """Receive a raw message from the chat server."""
         message = super().recv()
         if message is not None and message is not False:
             print("<-- {}".format(message))
         return message
 
     def parse_message(self, message):
+        """Split a raw message up into its several parts."""
         if message[0] == "@":
             tagstring = message[1:message.find(" ")]
             tags = self.parse_tags(tagstring)
@@ -204,6 +247,7 @@ class IRCBot(irc.IRCClient):
         return result
 
     def parse_tags(self, tagstring):
+        """Turn the tags that Twitch assigns to users into a list."""
         tags = {}
         parts = tagstring.split(";")
 

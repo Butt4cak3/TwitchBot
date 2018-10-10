@@ -2,6 +2,9 @@ from . import Permission
 
 
 class User:
+    """
+    This class represents a user in chat, usually the sender of a command.
+    """
     _id = ""
     _name = ""
     _displayname = ""
@@ -41,39 +44,53 @@ class User:
             self._permissions.append(Permission.OP)
 
     def get_id(self):
+        """Return the unique, numeric ID of the user."""
         return self._id
 
     def get_name(self):
+        """Return the all-lowercase name of the user."""
         return self._name
 
     def get_displayname(self):
+        """Return the properly capitalized version of the username."""
         return self._displayname
 
     def get_color(self):
+        """Return the color code that's used to show a user's name in chat."""
         return self._color
 
     def get_badges(self):
+        """Return the list of badges a user has in the current channel."""
         return self._badges
 
     def is_mod(self):
+        """Return whether the user is a moderator in the current channel."""
         return self._mod
 
     def is_subscriber(self):
+        """Return whether the user is a moderator in the current channel."""
         return self._subscriber
 
     def is_subscribed(self):
+        """Return whether the user is a moderator in the current channel."""
         return self._subscriber
 
     def is_op(self):
+        """Return whether the user is specified as an OP in the config."""
         return self._op
 
     def is_bot(self):
+        """Return whether the user is specified as a bot in the config."""
         return self._bot
 
     def is_broadcaster(self):
+        """Return whether the user is the owner of the current channel."""
         return "broadcaster" in self.get_badges()
 
     def has_permission(self, permissions):
+        """
+        Check whether the user has one or more of the specified permissions.
+        """
         for required in permissions:
             for actual in self._permissions:
                 if actual >= required:
