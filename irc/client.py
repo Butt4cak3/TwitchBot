@@ -1,5 +1,6 @@
 from . import IRCConnection
 from . import ConnectionLostException
+from . import IRCMessage, PrivMsg
 from collections import deque
 import time
 
@@ -29,7 +30,7 @@ class IRCClient:
 
             msg = self.parse_message(text)
 
-            if msg["command"] == "PING":
+            if msg.command == "PING":
                 self.handle_ping(msg)
 
             self.on_message(msg)
@@ -59,7 +60,7 @@ class IRCClient:
         self.send("USER {} {} {} :{}".format(user, user, user, realname))
 
     def handle_ping(self, msg):
-        self.send("PONG :{}".format(" ".join(msg["params"])))
+        self.send("PONG :{}".format(" ".join(msg.params)))
 
     def privmsg(self, channel, message):
         self.send("PRIVMSG {} :{}".format(channel, message))
@@ -99,18 +100,10 @@ class IRCClient:
             else:
                 params.append(part)
 
-        return {
-            "sender": sender,
-            "command": action,
-            "params": params
-        }
+        return IRCMessage(sender, action, params)
 
     def parse_privmsg(self, msg):
-        return {
-            "sender": msg["sender"],
-            "channel": msg["params"][0],
-            "text": msg["params"][1]
-        }
+        return PrivMsg(msg.sender, msg.params[0], msg.params[1])
 
     def on_message(self, message):
         pass

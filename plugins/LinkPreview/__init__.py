@@ -30,12 +30,12 @@ class LinkPreview(Plugin):
         if now < self.lastresponse + self.RESPONSE_INTERVAL:
             return
 
-        sender = msg["sender"]
-        permission = self.get_config()["previewLinks"]
+        sender = msg.sender
+        permission = Permission.from_strings(self.get_config()["previewLinks"])
         if not sender.has_permission(permission):
             return
 
-        match = re.search(r"https?://\S+", msg["text"])
+        match = re.search(r"https?://\S+", msg.text)
         if match is None:
             return
 
@@ -50,7 +50,7 @@ class LinkPreview(Plugin):
         if title is None:
             return
 
-        channel = msg["channel"]
+        channel = msg.channel
         self.get_bot().privmsg(channel, "Link description: {}".format(title))
         self.lastresponse = now
 

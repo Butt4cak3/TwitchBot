@@ -81,19 +81,19 @@ class IRCBot(irc.IRCClient):
         for plugin in self.plugins:
             plugin.on_message(msg)
 
-        if msg["command"] == "PRIVMSG":
+        if msg.command == "PRIVMSG":
             privmsg = self.parse_privmsg(msg)
 
-            if privmsg["sender"].is_bot():
+            if self.isbot(privmsg.sender):
                 return
 
-            if (len(privmsg["text"]) > 0 and
-                    privmsg["text"][0] == self.get_config()["commandPrefix"]):
+            if (len(privmsg.text) > 0 and
+                    privmsg.text[0] == self.get_config()["commandPrefix"]):
                 self.handle_command(privmsg)
 
             for plugin in self.plugins:
                 plugin.on_privmsg(privmsg)
-        elif msg["command"] == "376":
+        elif msg.command == "376":
             for channel in self.channels:
                 self.send("JOIN #{}".format(channel))
 
@@ -128,7 +128,7 @@ class IRCBot(irc.IRCClient):
 
     def parse_command(self, privmsg):
         """Parse a command message string and return it as an object."""
-        parts = privmsg["text"].split(" ")
+        parts = privmsg.text.split(" ")
         command = parts.pop(0)[1:].lower()
         params = []
 
@@ -155,8 +155,8 @@ class IRCBot(irc.IRCClient):
                 params.append(part)
 
         return {
-            "sender": privmsg["sender"],
-            "channel": privmsg["channel"][1:],
+            "sender": privmsg.sender,
+            "channel": privmsg.channel[1:],
             "command": command,
             "params": params
         }
@@ -240,12 +240,12 @@ class IRCBot(irc.IRCClient):
             tags = {}
 
         result = super().parse_message(message)
-        nick = result["sender"]
+        nick = result.sender
         tags["nick"] = nick
         if "user-id" in tags:
-            result["sender"] = User(tags, self.isop(nick), self.isbot(nick))
+            result.sender = User(tags, self.isop(nick), self.isbot(nick))
         else:
-            result["sender"] = tags
+            result.sender = tags
 
         return result
 

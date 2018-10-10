@@ -53,7 +53,7 @@ class Stats(Plugin):
 
     def save_privmsg(self, msg):
         c = self.db.cursor()
-        sender = msg["sender"]
+        sender = msg.sender
         values = (
             strftime("%Y-%m-%d %H:%M:%S", gmtime()),
             sender.get_id(),
@@ -63,8 +63,8 @@ class Stats(Plugin):
             1 if sender.is_subscriber() else 0,
             1 if sender.is_bot() else 0,
             1 if sender.is_broadcaster() else 0,
-            msg["channel"],
-            msg["text"]
+            msg.channel,
+            msg.text
         )
         sql = """
         INSERT INTO privmsg (

@@ -25,14 +25,14 @@ class Strawpoll(Plugin):
         if now < self.lastresponse + self.RESPONSE_INTERVAL:
             return
 
-        if msg["text"][0:24] != "http://www.strawpoll.me/":
+        if msg.text[0:24] != "http://www.strawpoll.me/":
             return
 
-        sender = msg["sender"]
+        sender = msg.sender
 
         permission = self.get_config()["previewLinks"]
         if self.get_bot().has_permission(sender, permission):
-            self.show_info(msg["text"][24:], msg["channel"])
+            self.show_info(msg.text[24:], msg.channel)
             self.lastresponse = now
 
     def show_info(self, poll_id, channel):

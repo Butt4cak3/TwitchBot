@@ -10,16 +10,16 @@ class GitHub(Plugin):
         self.get_config().setdefault("api_key", "")
 
     def on_privmsg(self, privmsg):
-        matches = re.finditer(r"#(\d+)", privmsg["text"])
+        matches = re.finditer(r"#(\d+)", privmsg.text)
         for match in matches:
             issue_number = match.group(1)
 
-            issue = self.get_issue_data(privmsg["channel"], issue_number)
+            issue = self.get_issue_data(privmsg.channel, issue_number)
             if issue is None:
                 return
 
             msg = "{title}: {url}".format(**issue)
-            self.get_bot().privmsg(privmsg["channel"], msg)
+            self.get_bot().privmsg(privmsg.channel, msg)
             time.sleep(1)
 
     def get_issue_data(self, channel, issue_number):

@@ -91,6 +91,9 @@ class User:
         """
         Check whether the user has one or more of the specified permissions.
         """
+        if isinstance(permissions, Permission):
+            permissions = (permissions,)
+
         for required in permissions:
             for actual in self._permissions:
                 if actual >= required:
