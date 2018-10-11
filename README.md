@@ -1,4 +1,4 @@
-# Buttercak3's Twitch bot
+# Bottercak3
 
 This is an open source chat bot that anyone can run on their own computer or
 on a server. The goal is to have a bot that one can easily extend with custom
