@@ -1,3 +1,6 @@
+from irc import IRCMessage
+
+
 class ChatMessage:
     sender = None
     channel = ""

@@ -76,31 +76,7 @@ class IRCClient:
         return self.conn.recv()
 
     def parse_message(self, text):
-        parts = deque(text.split(" "))
-
-        if parts[0][0] == ":":
-            sender = parts.popleft()
-            sender = sender[1:]
-            bangpos = sender.find("!")
-            if bangpos != -1:
-                sender = sender[0:bangpos]
-        else:
-            sender = None
-
-        action = parts.popleft()
-
-        params = []
-        while len(parts) > 0:
-            part = parts.popleft()
-            if len(part) > 0 and part[0] == ":":
-                param = part[1:]
-                while len(parts) > 0:
-                    param += " " + parts.popleft()
-                params.append(param)
-            else:
-                params.append(part)
-
-        return IRCMessage(sender, action, params)
+        return IRCMessage.parse(text)
 
     def parse_privmsg(self, msg):
         return PrivMsg(msg.sender, msg.params[0], msg.params[1])
