@@ -5,6 +5,7 @@ from twitchbot import TwitchBot
 import json
 import os
 import time
+import webbrowser
 
 CONFIG_FILE = "config.json"
 
@@ -34,8 +35,23 @@ def main():
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f, sort_keys=True, indent=4)
 
-    if (config["username"] == "" or
-            config["oauth"] == "" or
+    if config["oauth"] == "":
+        webbrowser.open("https://twitchapps.com/tmi/")
+        print("In order for the bot to authenticate with Twitch, you have to"
+              " get an OAuth token first. You can get one at the following URL:"
+              " https://twitchapps.com/tmi/")
+        print()
+        print("Note that you have to be logged in with the account that the bot"
+              " is supposed to use. If you want to use your regular Twitch"
+              " account, then you're probably already logged in. If you want"
+              " your bot to have a custom name in chat, you will have to go"
+              " ahead and create a new account, log in with that and request"
+              " an OAuth token with it.")
+        print()
+        print("Once you have the token, open config.json with a text editor and"
+              " paste the token into the \"oauth\" field.")
+        return
+    elif (config["username"] == "" or
             config["address"]["host"] == "" or
             len(config["channels"]) == 0):
         print("Your configuration file is incomplete."
