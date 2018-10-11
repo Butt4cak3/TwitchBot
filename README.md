@@ -55,7 +55,7 @@ everything that comes after, e.g. `!mycommand ParamA ParamB`. "ParamA" and
 Parameters are separated by spaces. If you want to pass something that has a
 space, surround it by quotes ("), e.g. `!say "Hello chat!"`.
 
-## Plugins that come out-of-the-box
+## Included plugins
 
 ### The General plugin
 
