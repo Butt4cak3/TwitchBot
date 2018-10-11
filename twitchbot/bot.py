@@ -7,7 +7,7 @@ import traceback
 import os
 
 
-class IRCBot(irc.IRCClient):
+class TwitchBot(irc.IRCClient):
     """An instance of a chat bot.
 
     Provides a way to connect to and communicate with the chat server and to

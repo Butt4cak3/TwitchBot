@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -u
 
 import irc
-from twitchbot import IRCBot
+from twitchbot import TwitchBot
 import json
 import os
 import time
@@ -45,7 +45,7 @@ def main():
     retry = True
     while retry:
         try:
-            client = IRCBot(config)
+            client = TwitchBot(config)
             client.register(config["username"], password=config["oauth"])
             client.ops = config["ops"]
             client.bots = config["bots"]
