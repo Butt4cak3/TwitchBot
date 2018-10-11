@@ -8,18 +8,19 @@ class GitHub(Plugin):
     def init(self):
         self.get_config().setdefault("repos", {})
         self.get_config().setdefault("api_key", "")
+        self.get_bot().on_chatmessage.subscribe(self.on_chatmessage)
 
-    def on_privmsg(self, privmsg):
-        matches = re.finditer(r"#(\d+)", privmsg.text)
+    def on_chatmessage(self, message):
+        matches = re.finditer(r"#(\d+)", message.text)
         for match in matches:
+            print(match)
             issue_number = match.group(1)
-
-            issue = self.get_issue_data(privmsg.channel, issue_number)
+            issue = self.get_issue_data(message.channel, issue_number)
             if issue is None:
                 return
 
             msg = "{title}: {url}".format(**issue)
-            self.get_bot().privmsg(privmsg.channel, msg)
+            self.get_bot().say(message.channel, msg)
             time.sleep(1)
 
     def get_issue_data(self, channel, issue_number):

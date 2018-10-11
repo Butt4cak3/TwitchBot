@@ -1,4 +1,4 @@
-from ircbot import Plugin
+from ircbot import Plugin, Permission
 import requests
 import time
 import html
@@ -16,8 +16,9 @@ class Strawpoll(Plugin):
                                      ["broadcaster", "moderator"])
         self.get_config().setdefault("enabled", True)
         self.enabled = self.get_config().get("enabled")
+        self.get_bot().on_chatmessage.subscribe(self.on_chatmessage)
 
-    def on_privmsg(self, msg):
+    def on_chatmessage(self, msg):
         if not self.enabled:
             return
 
@@ -25,13 +26,13 @@ class Strawpoll(Plugin):
         if now < self.lastresponse + self.RESPONSE_INTERVAL:
             return
 
-        if msg.text[0:24] != "http://www.strawpoll.me/":
+        if msg.text[0:25] != "https://www.strawpoll.me/":
             return
 
         sender = msg.sender
 
-        permission = self.get_config()["previewLinks"]
-        if self.get_bot().has_permission(sender, permission):
+        permission = Permission.from_strings(self.get_config()["previewLinks"])
+        if sender.has_permission(permission):
             self.show_info(msg.text[24:], msg.channel)
             self.lastresponse = now
 
@@ -45,7 +46,7 @@ class Strawpoll(Plugin):
         options = " | ".join(options)
 
         msg = "[Strawpoll] {} -- {}".format(title, options)
-        self.get_bot().privmsg(channel, msg)
+        self.get_bot().say(channel, msg)
 
     def cmd_strawpoll(self, params, channel, sender, command):
         if len(params) < 3:

@@ -21,8 +21,9 @@ class LinkPreview(Plugin):
         self.get_config().setdefault("ignored_urls", [])
         self.enabled = self.get_config().get("enabled")
         self.ignored = self.get_config().get("ignored_urls")
+        self.get_bot().on_chatmessage.subscribe(self.on_chatmessage)
 
-    def on_privmsg(self, msg):
+    def on_chatmessage(self, msg):
         if not self.enabled:
             return
 
@@ -51,7 +52,7 @@ class LinkPreview(Plugin):
             return
 
         channel = msg.channel
-        self.get_bot().privmsg(channel, "Link description: {}".format(title))
+        self.get_bot().say(channel, "Link description: {}".format(title))
         self.lastresponse = now
 
     def get_site_title(self, url):

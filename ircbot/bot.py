@@ -2,7 +2,7 @@ import pkgutil
 import inspect
 import irc
 import plugins
-from . import Plugin, User, Permission, Command
+from . import Plugin, User, Permission, Command, ChatMessage, Event
 import traceback
 import os
 
@@ -21,6 +21,7 @@ class IRCBot(irc.IRCClient):
     channels = []
     oauth = ""
     config = None
+    on_chatmessage = Event()
 
     def __init__(self, config):
         """Store configuration options and load plugins."""
@@ -75,8 +76,8 @@ class IRCBot(irc.IRCClient):
     def on_message(self, msg):
         """Handle a chat message.
 
-        React to a few IRC commands and call the on_privmsg and on_message
-        methods of all plugins.
+        React to a few IRC commands and invoke the on_privmsg and on_message
+        events.
         """
         for plugin in self.plugins:
             plugin.on_message(msg)
@@ -91,8 +92,9 @@ class IRCBot(irc.IRCClient):
                     privmsg.text[0] == self.get_config()["commandPrefix"]):
                 self.handle_command(privmsg)
 
-            for plugin in self.plugins:
-                plugin.on_privmsg(privmsg)
+            chatmessage = ChatMessage(privmsg.sender, privmsg.channel[1:],
+                                      privmsg.text)
+            self.on_chatmessage.invoke(chatmessage)
         elif msg.command == "376":
             for channel in self.channels:
                 self.send("JOIN #{}".format(channel))

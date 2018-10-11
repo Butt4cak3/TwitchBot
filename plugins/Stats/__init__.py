@@ -20,6 +20,7 @@ class Stats(Plugin):
 
         self.register_command("count", self.cmd_count,
                               permissions=("mod", "broadcaster"))
+        self.get_bot().on_chatmessage.subscribe(self.on_chatmessage)
 
     def init_db(self):
         c = self.db.cursor()
@@ -48,10 +49,10 @@ class Stats(Plugin):
         self.db.commit()
         c.close()
 
-    def on_privmsg(self, privmsg):
-        self.save_privmsg(privmsg)
+    def on_chatmessage(self, message):
+        self.save_chatmessage(message)
 
-    def save_privmsg(self, msg):
+    def save_chatmessage(self, msg):
         c = self.db.cursor()
         sender = msg.sender
         values = (
