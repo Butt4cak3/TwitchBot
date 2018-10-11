@@ -13,7 +13,6 @@ class GitHub(Plugin):
     def on_chatmessage(self, message):
         matches = re.finditer(r"#(\d+)", message.text)
         for match in matches:
-            print(match)
             issue_number = match.group(1)
             issue = self.get_issue_data(message.channel, issue_number)
             if issue is None:
