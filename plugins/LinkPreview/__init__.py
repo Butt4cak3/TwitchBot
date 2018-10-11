@@ -1,4 +1,4 @@
-from ircbot import Plugin, Permission
+from twitchbot import Plugin, Permission
 import requests
 import time
 import html

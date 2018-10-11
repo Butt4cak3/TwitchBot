@@ -1,4 +1,4 @@
-from ircbot import Plugin
+from twitchbot import Plugin
 import re
 import requests
 import time

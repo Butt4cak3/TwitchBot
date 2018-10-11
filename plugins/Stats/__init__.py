@@ -1,4 +1,4 @@
-from ircbot import Plugin
+from twitchbot import Plugin
 import sqlite3
 import os
 from time import gmtime, strftime

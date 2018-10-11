@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -u
 
 import irc
-from ircbot import IRCBot
+from twitchbot import IRCBot
 import json
 import os
 import time
