@@ -1,4 +1,4 @@
-from twitchbot import Plugin, Permission
+from twitchbot import Plugin, Permission, Command
 import os
 import json
 import re
@@ -121,16 +121,11 @@ class General(Plugin):
 
         alias = self.alias[command]
 
-        cmd = {
-            "sender": sender,
-            "channel": channel,
-            "command": alias["params"][0],
-            "params": alias["params"][1:]
-        }
+        cmd = Command(alias["params"][0], alias["params"][1:], sender, channel)
 
-        for i in range(len(cmd["params"])):
-            cmd["params"][i] = re.sub(r"\$([cu]|[1-9][0-9]*)",
-                                      replace_placeholder, cmd["params"][i])
+        for i in range(len(cmd.params)):
+            cmd.params[i] = re.sub(r"\$([cu]|[1-9][0-9]*)",
+                                   replace_placeholder, cmd.params[i])
 
         self.get_bot().execute_command(cmd)
 
