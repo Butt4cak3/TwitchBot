@@ -20,6 +20,12 @@ class SongRequest(Plugin):
         self.server.start()
 
     def cmd_request(self, params, channel, sender, command):
+        if len(params) < 1:
+            msg = "@{} You have to pass a YouTube URL.".format(
+                sender.get_displayname())
+            self.get_bot().say(channel, msg)
+            return
+
         url = params[0]
 
         self.on_request.invoke(url)
