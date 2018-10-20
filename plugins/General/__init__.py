@@ -15,7 +15,8 @@ class General(Plugin):
                               permissions=(Permission.Everyone,))
         self.register_command("commands", self.cmd_help,
                               permissions=(Permission.Everyone,))
-        self.register_command("say", self.cmd_say)
+        self.register_command("say", self.cmd_say,
+                              permissions=(Permission.Moderator))
         self.register_command("quit", self.cmd_quit)
         self.register_command("alias", self.cmd_alias)
         self.register_command("uptime", self.cmd_uptime,
