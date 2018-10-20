@@ -14,9 +14,9 @@ class LinkPreview(Plugin):
 
     def init(self):
         self.register_command("linkpreview", self.cmd_linkpreview)
-        self.get_config().setdefault("previewLinks",
+        self.get_config().setdefault("previewLinks", Permission.to_strings(
                                      [Permission.Broadcaster,
-                                      Permission.Moderator])
+                                      Permission.Moderator]))
         self.get_config().setdefault("enabled", True)
         self.get_config().setdefault("ignored_urls", [])
         self.enabled = self.get_config().get("enabled")
