@@ -1,8 +1,6 @@
 class Event:
-    handlers = set()
-
     def __init__(self):
-        pass
+        self.handlers = set()
 
     def subscribe(self, handler):
         self.handlers.add(handler)
