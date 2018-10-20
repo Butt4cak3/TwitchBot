@@ -14,17 +14,16 @@ class TwitchBot(irc.IRCClient):
     react to certain events and commands.
     """
 
-    plugins = []
-    commands = {}
-    ops = []
-    bots = []
-    channels = []
-    oauth = ""
-    config = None
-    on_chatmessage = Event()
-
     def __init__(self, config):
         """Store configuration options and load plugins."""
+        self.plugins = []
+        self.commands = {}
+        self.ops = []
+        self.bots = []
+        self.channels = []
+        self.oauth = ""
+        self.on_chatmessage = Event()
+
         address = (config["address"]["host"], config["address"]["port"])
         super().__init__(address)
         self.set_timeout(config["connectionTimeout"])
